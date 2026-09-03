@@ -43,6 +43,7 @@ function MandiApp() {
   const [isCloudModalOpen, setIsCloudModalOpen] = useState<boolean>(false);
   const [isFarmerConnectOpen, setIsFarmerConnectOpen] = useState<boolean>(false);
   const [locationToast, setLocationToast] = useState<string | null>(null);
+  const [cropSearchFilter, setCropSearchFilter] = useState<string>('');
 
   const { profile, userProfile, syncActiveCropAndYield, pooledFarmers } = useFirebase();
 
@@ -150,8 +151,14 @@ function MandiApp() {
 
   // 1. Automatic Background State Sync to Firestore:
   // When the user selects a crop on the '1. Crops' page, immediately save/update 'selectedCrop' in their active farmer document in Firestore.
-  const handleSelectCrop = (cropId: string, autoAdvance: boolean = true) => {
+  const handleSelectCrop = (cropId: string, autoAdvance: boolean = true, cropName?: string) => {
     setSelectedCropId(cropId);
+    if (cropName) {
+      setCropSearchFilter(cropName);
+    } else {
+      const found = crops.find((c) => c.id === cropId);
+      if (found) setCropSearchFilter(found.name);
+    }
     syncActiveCropAndYield(cropId, quantity, 'quintal');
     if (autoAdvance) {
       setActivePage('decision');
@@ -273,6 +280,8 @@ function MandiApp() {
             onOpenVoiceSearch={() => setIsVoiceSearchOpen(true)}
             isSunlightMode={isSunlightMode}
             onProceedToDecision={() => setActivePage('decision')}
+            filterText={cropSearchFilter}
+            onFilterTextChange={setCropSearchFilter}
           />
         )}
 
@@ -411,9 +420,16 @@ function MandiApp() {
         isOpen={isVoiceSearchOpen}
         onClose={() => setIsVoiceSearchOpen(false)}
         crops={crops}
-        onSelectCrop={(id) => handleSelectCrop(id, true)}
+        onSelectCrop={(id, name) => handleSelectCrop(id, true, name)}
+        onUpdateSearchInput={(name) => setCropSearchFilter(name)}
+        onFeedbackToast={(msg) => setLocationToast(msg)}
         language={language}
-        onNavigatePage={(page) => setActivePage(page)}
+        onNavigatePage={(page) => {
+          setActivePage(page);
+          if (typeof window !== 'undefined') {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        }}
       />
 
       {/* Kisan Cloud Account & Firebase Firestore Modal */}

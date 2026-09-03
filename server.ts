@@ -5,13 +5,16 @@ import { GoogleGenAI } from '@google/genai';
 
 interface WeatherMetrics {
   temperature?: number;
+  temp?: number;
   maxTemperature?: number;
   minTemperature?: number;
   humidity?: number;
   precipitationSum?: number;
   precipitationProbability?: number;
+  rainChance?: number;
   windSpeed?: number;
   conditionLabel?: string;
+  condition?: string;
   isExtremeRisk?: boolean;
   riskType?: string;
 }
@@ -108,39 +111,131 @@ function generateFallbackAdvisory(crop: CropInfo, location: string, weather: Wea
 }
 
 // Intelligent fallback generator for weather chat Q&A
-function generateFallbackChatAnswer(question: string, crop: CropInfo, location: string, weather: WeatherMetrics) {
+function generateFallbackChatAnswer(
+  question: string,
+  crop: CropInfo,
+  location: string,
+  weather: WeatherMetrics,
+  lang: string = 'en'
+) {
   const q = question.toLowerCase();
   const cropName = crop.name || 'crop';
+  const hindiName = crop.hindiName || cropName;
   const rain = weather.precipitationSum ?? 0;
-  const rainProb = weather.precipitationProbability ?? 10;
+  const rainProb = weather.rainChance ?? weather.precipitationProbability ?? 10;
   const wind = weather.windSpeed ?? 14;
-  const temp = weather.temperature ?? 30;
+  const temp = weather.temp ?? weather.temperature ?? 30;
+  const hum = weather.humidity ?? 50;
+  const isHindi = lang === 'hi';
 
-  if (q.includes('rain') || q.includes('spoil') || q.includes('बारिश') || q.includes('खराब')) {
+  // 1. Rain & Produce Spoilage questions
+  if (
+    q.includes('rain') ||
+    q.includes('spoil') ||
+    q.includes('बारिश') ||
+    q.includes('खराब') ||
+    q.includes('पाऊस') ||
+    q.includes('भेंज') ||
+    q.includes('বৃষ্টি')
+  ) {
     if (rain > 5 || rainProb >= 40) {
-      return `⚠️ Rain Alert: With a ${rainProb}% chance of rain (${rain} mm) in ${location}, unprotected ${cropName} is at severe risk of moisture absorption and fungal dockage at mandi auction. Keep harvested produce strictly under covered sheds on wooden pallets. Do not harvest more crops today until dry weather resumes.`;
+      if (isHindi) {
+        return `⚠️ बारिश चेतावनी: ${location} में ${rainProb}% बारिश की संभावना (${rain} मिमी) है। कटी हुई ${hindiName} को भीगने से बचाने के लिए तुरंत तिरपाल से ढकें या पक्के गोदाम में लकड़ी के तख्तों (चन्नी) पर रखें। नमी से मंडी में भाव 15-20% गिर सकता है।`;
+      }
+      return `⚠️ Rain Spoilage Risk: With a ${rainProb}% chance of rain (${rain} mm) in ${location}, harvested ${cropName} is vulnerable to moisture absorption and fungal rot. Move all produce onto wooden pallets under waterproof sheds immediately, and keep double tarpaulins secured.`;
     }
-    return `✓ Low Rain Risk: Rain probability is currently ${rainProb}% (${rain} mm), so minimal threat of rain damage today. However, always keep waterproof tarpaulins on standby when hauling ${cropName} to the mandi.`;
+    if (isHindi) {
+      return `✓ बारिश का खतरा कम: वर्तमान में बारिश की संभावना केवल ${rainProb}% (${rain} मिमी) है। आज ${hindiName} के भीगने का सीधा खतरा नहीं है, फिर भी मंडी ले जाते समय वाहन पर तिरपाल की व्यवस्था अवश्य रखें।`;
+    }
+    return `✓ Low Rain Risk: Current rain probability is only ${rainProb}% (${rain} mm) in ${location}, so your harvested ${cropName} is safe from immediate rain spoilage. Maintain standard tarpaulin cover on standby as a standard precaution.`;
   }
 
-  if (q.includes('pesticide') || q.includes('spray') || q.includes('कीटनाशक') || q.includes('दवा')) {
-    if (wind >= 18) {
-      return `❌ Do not spray pesticide right now. Wind speed is ${wind} km/h, which will cause severe chemical drift, wasting expensive chemicals and risking unintended drift onto adjacent plots. Wait for wind to drop below 12 km/h (usually early morning or calm evening).`;
+  // 2. Pesticide & Chemical Spray questions
+  if (
+    q.includes('pesticide') ||
+    q.includes('spray') ||
+    q.includes('कीटनाशक') ||
+    q.includes('दवा') ||
+    q.includes('फवारणी') ||
+    q.includes('छिड़क') ||
+    q.includes('દવા') ||
+    q.includes('কীটনাশক')
+  ) {
+    if (wind >= 16) {
+      if (isHindi) {
+        return `❌ अभी कीटनाशक न छिड़कें: हवा की गति ${wind} किमी/घंटा है, जिससे दवा उड़कर बर्बाद होगी (ड्रिफ्ट नुकसान) और अन्य खेतों में जा सकती है। हवा की गति 12 किमी/घंटा से कम होने (सुबह या शांत शाम) तक प्रतीक्षा करें।`;
+      }
+      return `❌ Do not spray pesticide right now. Wind speed is ${wind} km/h, which exceeds the safe 15 km/h threshold and will cause chemical drift off your ${cropName}, wasting expensive input. Wait for calm early morning conditions (<12 km/h).`;
     }
-    if (rainProb >= 50) {
-      return `❌ Avoid spraying now. Rain probability is ${rainProb}%. Sprayed chemicals will wash off within hours, rendering the treatment ineffective. Wait for a clear 24-hour window.`;
+    if (rainProb >= 45) {
+      if (isHindi) {
+        return `❌ छिड़काव स्थगित रखें: बारिश की संभावना ${rainProb}% है। दवा छिड़कने के 4-6 घंटे के भीतर बारिश होने से पूरी दवा धुल जाएगी और आर्थिक नुकसान होगा। 24 घंटे का सूखा मौसम मिलने पर ही स्प्रे करें।`;
+      }
+      return `❌ Postpone spraying today: Rain probability is ${rainProb}%. Incoming precipitation will wash off foliar chemicals within hours. Wait for a clear, dry 24-hour weather window before applying spray to ${cropName}.`;
     }
-    return `✓ Safe to spray: Current wind is calm (${wind} km/h) and temperature is ${temp}°C. Best time is early morning (7:00-9:30 AM) when stomata are open and pollinators are less active. Ensure personal protective equipment.`;
+    if (isHindi) {
+      return `✓ छिड़काव के लिए अनुकूल समय: हवा की गति शांत (${wind} किमी/घंटा) और तापमान ${temp}°C है। सुबह 7:30 से 10:00 बजे के बीच छिड़काव सबसे प्रभावी रहेगा। छिड़काव करते समय सुरक्षात्मक मास्क जरूर पहनें।`;
+    }
+    return `✓ Favorable Spray Window: Wind speed is calm at ${wind} km/h and temperature is ${temp}°C. Early morning (7:00-9:30 AM) is ideal for ${cropName} spraying while leaf pores are open and drift is minimal.`;
   }
 
-  if (q.includes('transport') || q.includes('mandi') || q.includes('safe') || q.includes('यात्रा') || q.includes('गाड़ी')) {
-    if (rain >= 15 || weather.isExtremeRisk) {
-      return `⚠️ High Caution for Mandi Transport: Low-lying approach roads to ${location} APMC yard may have water accumulation. If dispatching today, ensure double tarpaulin wrapping tied firmly against ${wind} km/h winds, and confirm mandi auction sheds are open before loading.`;
+  // 3. Mandi Transport & Road Transit safety
+  if (
+    q.includes('transport') ||
+    q.includes('mandi') ||
+    q.includes('मंडी') ||
+    q.includes('safe') ||
+    q.includes('सुरक्षित') ||
+    q.includes('ले जाना') ||
+    q.includes('बाजार') ||
+    q.includes('यात्रा') ||
+    q.includes('गाड़ी') ||
+    q.includes('वाहतूक') ||
+    q.includes('परिवहन') ||
+    q.includes('transit')
+  ) {
+    if (rain >= 15 || rainProb >= 65 || weather.isExtremeRisk) {
+      if (isHindi) {
+        return `⚠️ मंडी परिवहन में सावधानी: बारिश की संभावना ${rainProb}% है और रास्ते में जलभराव हो सकता है। यदि आज ${location} मंडी जा रहे हैं, तो वाहन को दोहरी तिरपाल से रस्सियों द्वारा कसकर बांधें और निकलने से पहले मंडी यार्ड के टीन शेड खुले होने की पुष्टि करें।`;
+      }
+      return `⚠️ Mandi Transport Alert: Rain probability is ${rainProb}% with ${wind} km/h wind in ${location}. Secure your vehicle with heavy-duty double tarpaulins tied tightly against wind gusts, and verify covered auction sheds at the APMC before departure.`;
     }
-    return `✓ Good Transport Window: Conditions in ${location} are favorable (${temp}°C, wind ${wind} km/h). Dispatch early morning to avoid traffic and secure an early token at the weighing bridge.`;
+    if (isHindi) {
+      return `✓ मंडी ले जाने के लिए सुरक्षित: आज मौसम अनुकूल है (${temp}°C, हवा ${wind} किमी/घंटा)। जल्दी सुबह 6:00 से 8:00 बजे निकलें ताकि मंडी तोल कांटे पर जल्दी टोकन मिल सके और दोपहर की तेज धूप से बचा जा सके।`;
+    }
+    return `✓ Safe for Mandi Transport: Road transit conditions to ${location} are favorable (${temp}°C, wind ${wind} km/h). Dispatch your ${cropName} in early morning hours to beat market congestion and secure early weighbridge tokens.`;
   }
 
-  return `Based on current weather in ${location} (${temp}°C, humidity ${weather.humidity ?? 50}%, rain chance ${rainProb}%, wind ${wind} km/h): For your ${cropName}, maintain shade protection, avoid waterlogging in low patches, and ensure tarpaulin coverage during transport.`;
+  // 4. Stacking, Storage & Humidity questions
+  if (
+    q.includes('stack') ||
+    q.includes('bag') ||
+    q.includes('storage') ||
+    q.includes('humidity') ||
+    q.includes('store') ||
+    q.includes('बोरी') ||
+    q.includes('भंडारण') ||
+    q.includes('थप्पी') ||
+    q.includes('गोदाम') ||
+    q.includes('नमी')
+  ) {
+    if (hum >= 65) {
+      if (isHindi) {
+        return `⚠️ उच्च आर्द्रता भंडारण निर्देश: हवा में नमी ${hum}% है। ${hindiName} की बोरियों को कभी भी सीधे मिट्टी के फर्श पर न रखें; नीचे लकड़ी की चन्नी (पैलेट्स) बिछाएं। बोरियों के बीच 1 फुट का गैप रखें ताकि हवा आर-पार निकल सके और फफूंद न लगे।`;
+      }
+      return `⚠️ High Humidity Stacking Protocol: Relative humidity is high at ${hum}%. Stack ${cropName} bags strictly on raised wooden pallets (channi) at least 15 cm above ground, leaving a 1-foot air gap between stacks to prevent sweating and fungal rot.`;
+    }
+    if (isHindi) {
+      return `✓ सामान्य भंडारण स्थिति: आर्द्रता ${hum}% और तापमान ${temp}°C है। कटी हुई फसल को हवादार शेड में तिरपाल के ऊपर रखें। दीवार से कम से कम 2 फीट दूरी बनाकर थप्पी लगाएं।`;
+    }
+    return `✓ Normal Stacking Conditions: Humidity is moderate at ${hum}% and temperature is ${temp}°C. Ensure well-ventilated dry storage for ${cropName} bags, keeping stacks 2 feet away from perimeter walls for smooth air circulation.`;
+  }
+
+  // 5. General Fallback addressing the specific question directly with exact metrics
+  if (isHindi) {
+    return `${location} में मौसम की स्थिति: तापमान ${temp}°C, नमी ${hum}%, बारिश की संभावना ${rainProb}% और हवा ${wind} किमी/घंटा है। आपके सवाल के अनुसार, ${hindiName} की फसल को खुले में भीगने से बचाएं और हवा व नमी के स्तर को देखते हुए खेत कार्य की योजना बनाएं।`;
+  }
+  return `Weather for ${cropName} in ${location}: Temperature is ${temp}°C, humidity ${hum}%, rain probability ${rainProb}%, and wind speed ${wind} km/h. To protect your crop, monitor field moisture closely, avoid unshaded daytime exposure, and maintain protective tarpaulin coverage during transport.`;
 }
 
 async function startServer() {
@@ -246,20 +341,49 @@ Return ONLY valid raw JSON matching this schema:
 
   // 2. Interactive Weather Q&A Chatbot Endpoint
   app.post('/api/weather/chat', async (req, res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+
     try {
-      const { question, crop, location, weather, language, history } = req.body || {};
-      if (!question || typeof question !== 'string') {
+      const { question, userQuestion: rawUserQuestion, crop, selectedCrop: rawSelectedCrop, location, currentLocation: rawCurrentLocation, weather, weatherData: rawWeatherData, language, currentLanguage: rawCurrentLanguage } = req.body || {};
+      const userQuestion = (rawUserQuestion || question || '').trim();
+      if (!userQuestion) {
         return res.status(400).json({ error: 'Question is required' });
       }
 
-      const cropInfo: CropInfo = crop || { name: 'Crop', hindiName: 'फसल' };
-      const weatherData: WeatherMetrics = weather || {};
-      const loc = location || 'Local Mandi';
-      const lang = language || 'en';
+      const selectedCrop: CropInfo = rawSelectedCrop || crop || { name: 'General Agriculture', hindiName: 'फसल' };
+      const currentLocation = rawCurrentLocation || location || 'Maharashtra';
+      const weatherDataObj = rawWeatherData || weather || {};
+      const lang = rawCurrentLanguage || language || 'en';
+
+      const temp = weatherDataObj.temp ?? weatherDataObj.temperature ?? 30;
+      const humidity = weatherDataObj.humidity ?? 50;
+      const rainChance = weatherDataObj.rainChance ?? weatherDataObj.precipitationProbability ?? 10;
+      const windSpeed = weatherDataObj.windSpeed ?? 14;
+      const condition = weatherDataObj.condition ?? weatherDataObj.conditionLabel ?? 'Normal';
+      const currentLanguage = LANGUAGE_NAMES[lang] || lang || 'English';
+
+      const weatherMetricsSummary: WeatherMetrics = {
+        temp,
+        temperature: temp,
+        humidity,
+        rainChance,
+        precipitationProbability: rainChance,
+        windSpeed,
+        condition,
+        conditionLabel: condition,
+      };
 
       const ai = getGenAI();
       if (!ai) {
-        const fallbackAnswer = generateFallbackChatAnswer(question, cropInfo, loc, weatherData);
+        const fallbackAnswer = generateFallbackChatAnswer(
+          userQuestion,
+          selectedCrop,
+          currentLocation,
+          weatherMetricsSummary,
+          lang
+        );
         return res.json({
           success: true,
           isAIGenerated: false,
@@ -268,48 +392,36 @@ Return ONLY valid raw JSON matching this schema:
         });
       }
 
-      const historyFormatted = Array.isArray(history)
-        ? history
-            .slice(-4)
-            .map((h: any) => `Farmer: ${h.question}\nAdvisor: ${h.answer}`)
-            .join('\n')
-        : '';
+      const prompt = `You are an expert agricultural meteorologist advising an Indian farmer.
 
-      const activeLanguageName = LANGUAGE_NAMES[lang] || 'English';
+User's Specific Question: "${userQuestion}"
 
-      const prompt = `You are a practical, trusted Indian Agricultural Meteorologist & Krishi Vigyan Kendra advisor assisting a farmer.
-FARMER & WEATHER CONTEXT:
-- Selected Crop: ${cropInfo.name} (${cropInfo.hindiName || ''})
-- Mandi Zone / Location: ${loc}, India
-- Live Weather Data:
-  * Temperature: ${weatherData.temperature ?? 30}°C (High: ${weatherData.maxTemperature ?? 34}°C, Low: ${weatherData.minTemperature ?? 22}°C)
-  * Relative Humidity: ${weatherData.humidity ?? 50}%
-  * Precipitation / Rain: ${weatherData.precipitationSum ?? 0} mm (${weatherData.precipitationProbability ?? 10}% chance of rain)
-  * Wind Speed: ${weatherData.windSpeed ?? 14} km/h
-  * Current Weather Label: ${weatherData.conditionLabel || 'Normal'}
-  * Extreme Risk Active: ${weatherData.isExtremeRisk ? 'YES' : 'NO'}
+Current Context:
+- Selected Crop: ${selectedCrop?.name || "General Agriculture"}
+- Location/APMC: ${currentLocation || "Maharashtra"}
+- Temperature: ${temp}°C
+- Humidity: ${humidity}%
+- Rain Probability: ${rainChance}%
+- Wind Speed: ${windSpeed} km/h
+- Conditions: ${condition}
 
-${historyFormatted ? `PREVIOUS CONVERSATION:\n${historyFormatted}\n` : ''}
-FARMER'S NEW QUESTION: "${question}"
+Instructions:
+1. Answer the specific question directly in 2-3 actionable, concise sentences.
+2. Use the exact weather metrics above (e.g., if asking about pesticide spray, evaluate wind speed and rain probability; if asking about mandi transport, evaluate rain chance).
+3. Do NOT repeat a generic weather summary. Address ONLY what was asked.
+4. Respond strictly in ${currentLanguage}.
 
-CRITICAL LANGUAGE REQUIREMENT:
-Respond strictly in ${activeLanguageName}.
-The fields "answer" and "audioText" MUST be written 100% in ${activeLanguageName} (using its native regional script if not English) so the farmer reads and listens in their mother tongue.
-
-INSTRUCTIONS:
-- Directly answer the farmer's question using the exact weather metrics above (mention temperature, rain chance, or wind speed where relevant).
-- Provide practical, actionable farm advice in 2 to 3 concise sentences or short bullet points.
-- Avoid generic filler, academic jargon, or disclaimers. Speak with clarity and direct farmer empathy.
-- Return ONLY valid raw JSON:
+Format your response strictly as valid JSON matching this schema:
 {
-  "answer": "Concise 2-3 sentence answer in ${activeLanguageName} with specific weather metrics and clear farmer recommendation",
-  "audioText": "Short spoken version of the answer in ${activeLanguageName} for audio playback"
+  "answer": "Direct, actionable 2-3 sentence answer specifically addressing '${userQuestion}' in ${currentLanguage} using exact metrics",
+  "audioText": "Short spoken version of the answer in ${currentLanguage} for audio playback"
 }`;
 
       const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
         contents: prompt,
         config: {
+          temperature: 0.7,
           responseMimeType: 'application/json',
         },
       });
@@ -317,15 +429,32 @@ INSTRUCTIONS:
       const responseText = response.text || '';
       try {
         const parsed = JSON.parse(responseText);
+        const ans = parsed.answer || parsed.response || parsed.advice || responseText;
+        const audio = parsed.audioText || ans;
         return res.json({
           success: true,
           isAIGenerated: true,
-          answer: parsed.answer,
-          audioText: parsed.audioText || parsed.answer,
+          answer: ans,
+          audioText: audio,
         });
       } catch (parseErr) {
         console.warn('Failed to parse Gemini chat JSON:', parseErr);
-        const fallbackAnswer = generateFallbackChatAnswer(question, cropInfo, loc, weatherData);
+        if (responseText && responseText.trim().length > 10) {
+          const cleanText = responseText.replace(/```json|```/g, '').trim();
+          return res.json({
+            success: true,
+            isAIGenerated: true,
+            answer: cleanText,
+            audioText: cleanText,
+          });
+        }
+        const fallbackAnswer = generateFallbackChatAnswer(
+          userQuestion,
+          selectedCrop,
+          currentLocation,
+          weatherMetricsSummary,
+          lang
+        );
         return res.json({
           success: true,
           isAIGenerated: false,
@@ -335,8 +464,13 @@ INSTRUCTIONS:
       }
     } catch (err: any) {
       console.error('Gemini Weather Chat API error:', err?.message || err);
-      const { question, crop, location, weather } = req.body || {};
-      const fallbackAnswer = generateFallbackChatAnswer(question || '', crop || { name: 'Crop' }, location || '', weather || {});
+      const { question, userQuestion, crop, selectedCrop, location, currentLocation, weather, weatherData, language, currentLanguage } = req.body || {};
+      const q = (userQuestion || question || '').trim();
+      const c = selectedCrop || crop || { name: 'General Agriculture', hindiName: 'फसल' };
+      const loc = currentLocation || location || 'Maharashtra';
+      const w = weatherData || weather || {};
+      const l = currentLanguage || language || 'en';
+      const fallbackAnswer = generateFallbackChatAnswer(q, c, loc, w, l);
       return res.json({
         success: true,
         isAIGenerated: false,

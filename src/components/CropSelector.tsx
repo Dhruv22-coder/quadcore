@@ -4,6 +4,7 @@ import { CropIcon } from './CropIcons';
 import { CropImage } from '../data/cropImages';
 import { translations, formatINR } from '../lib/utils';
 import { NAV_TRANSLATIONS } from '../data/navigationTranslations';
+import { CROP_VOICE_ALIASES } from '../lib/cropMatching';
 import {
   Mic,
   Search,
@@ -28,45 +29,12 @@ interface CropSelectorProps {
   onSelectCrop: (cropId: string) => void;
   language: Language;
   onOpenVoiceSearch?: () => void;
-  isDarkMode: boolean;
+  isDarkMode?: boolean;
+  isSunlightMode?: boolean;
   onProceedToDecision?: () => void;
+  filterText?: string;
+  onFilterTextChange?: (text: string) => void;
 }
-
-// Common transliterations and colloquial names for all-India farmers
-const CROP_ALIASES: Record<string, string[]> = {
-  onion: ['pyaaz', 'pyaz', 'kanda', 'dungri', 'vengayam', 'ullipayalu', 'eerulli'],
-  potato: ['aloo', 'aalu', 'batata', 'urulaikizhangu', 'alu', 'aaloo'],
-  tomato: ['tamatar', 'thakkali', 'tameta', 'tamata'],
-  wheat: ['gehu', 'gehun', 'gahu', 'kanak', 'sharbati', 'lokwan', 'tukda', 'godhumai', 'godhumalu'],
-  paddy: ['rice', 'chawal', 'dhan', 'basmati', 'bhat', 'arisi', 'vari', 'nellu', 'dhaanya'],
-  maize: ['corn', 'makka', 'makai', 'bhutta', 'cholam', 'mokka jonna'],
-  bajra: ['pearl millet', 'bajri', 'kambu', 'sajje', 'sajjalu'],
-  jowar: ['sorghum', 'jowari', 'cholam', 'jonna', 'jola'],
-  ragi: ['finger millet', 'nachni', 'kezhvaragu', 'ragulu'],
-  chana: ['gram', 'channa', 'bengal gram', 'chhole', 'kadalai', 'senagalu', 'kadale'],
-  tur: ['arhar', 'toor', 'pigeon pea', 'tuvar', 'tuver', 'kandulu', 'thuvaram paruppu', 'togari'],
-  moong: ['green gram', 'mung', 'pesalu', 'paasi payaru', 'hesaru kaalu', 'mug'],
-  urad: ['black gram', 'mash', 'minumulu', 'ulundhu', 'uddu'],
-  soybean: ['soya', 'soyabean', 'soya bean'],
-  mustard: ['sarson', 'rai', 'kadugu', 'avalu', 'sasive', 'sorisa'],
-  groundnut: ['peanut', 'mungfali', 'moongfali', 'singdana', 'kadalai', 'verukadalai', 'pallilu', 'shenga'],
-  cotton: ['kapas', 'rooi', 'rui', 'paruthi', 'paththi', 'kapasiya'],
-  sugarcane: ['ganna', 'us', 'karumbu', 'cheruku', 'kabbu', 'ikshu'],
-  jute: ['patson', 'san', 'paat', 'shon'],
-  garlic: ['lahsun', 'lasun', 'poondu', 'vellulli', 'bellulli', 'lasun'],
-  red_chilli: ['mirch', 'mirchi', 'lal mirch', 'milagai', 'mirapakaya', 'menasinakayi'],
-  turmeric: ['haldi', 'manjal', 'pasupu', 'arishina', 'halad'],
-  ginger: ['adrak', 'allam', 'inji', 'shunti', 'aale'],
-  cumin: ['jeera', 'jira', 'jeerakam', 'jeelakarra', 'jeerige'],
-  coriander: ['dhaniya', 'dhania', 'kothmir', 'kothamalli', 'dhaniamalu', 'kothambari'],
-  green_peas: ['matar', 'mattar', 'batani', 'pattani'],
-  cauliflower: ['phool gobhi', 'gobi', 'gobhi', 'flower'],
-  apple: ['seb', 'safarchand', 'aappil'],
-  banana: ['kela', 'kele', 'vazhaipazham', 'arati pandu', 'bale hannu'],
-  coconut: ['nariyal', 'thengai', 'kobbari', 'tenginakayi', 'naarol'],
-  tea: ['chai', 'cha', 'theeneer'],
-  coffee: ['kaapi', 'kafi'],
-};
 
 export const CropSelector: React.FC<CropSelectorProps> = ({
   crops,
@@ -76,8 +44,19 @@ export const CropSelector: React.FC<CropSelectorProps> = ({
   onOpenVoiceSearch,
   isDarkMode,
   onProceedToDecision,
+  filterText: externalFilterText,
+  onFilterTextChange,
 }) => {
-  const [filterText, setFilterText] = useState('');
+  const [internalFilterText, setInternalFilterText] = useState('');
+  const activeFilterText = externalFilterText !== undefined ? externalFilterText : internalFilterText;
+
+  const handleFilterChange = (val: string) => {
+    if (onFilterTextChange) {
+      onFilterTextChange(val);
+    }
+    setInternalFilterText(val);
+  };
+
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedSignal, setSelectedSignal] = useState<'all' | 'green' | 'amber' | 'red'>('all');
   const [sortBy, setSortBy] = useState<'default' | 'price-high' | 'price-low' | 'gainers' | 'name'>('default');
@@ -157,7 +136,7 @@ export const CropSelector: React.FC<CropSelectorProps> = ({
       }
 
       // 3. Text search query
-      const q = filterText.toLowerCase().trim();
+      const q = activeFilterText.toLowerCase().trim();
       if (!q) return true;
 
       const nameMatch = crop.name.toLowerCase().includes(q);
@@ -173,9 +152,9 @@ export const CropSelector: React.FC<CropSelectorProps> = ({
           )
         : false;
 
-      // Search inside colloquial / vernacular aliases
+      // Search inside colloquial / vernacular aliases across all 32 crops
       const aliasMatch =
-        CROP_ALIASES[crop.id]?.some((alias) => alias.includes(q) || q.includes(alias)) ?? false;
+        CROP_VOICE_ALIASES[crop.id]?.some((alias) => alias.toLowerCase().includes(q) || q.includes(alias.toLowerCase())) ?? false;
 
       return (
         nameMatch ||
@@ -187,7 +166,7 @@ export const CropSelector: React.FC<CropSelectorProps> = ({
         aliasMatch
       );
     });
-  }, [crops, selectedCategory, selectedSignal, filterText]);
+  }, [crops, selectedCategory, selectedSignal, activeFilterText]);
 
   // Sorting
   const sortedAndFilteredCrops = useMemo(() => {
@@ -214,13 +193,13 @@ export const CropSelector: React.FC<CropSelectorProps> = ({
   const hasActiveFilters =
     selectedCategory !== 'all' ||
     selectedSignal !== 'all' ||
-    filterText.trim() !== '' ||
+    activeFilterText.trim() !== '' ||
     sortBy !== 'default';
 
   const resetAllFilters = () => {
     setSelectedCategory('all');
     setSelectedSignal('all');
-    setFilterText('');
+    handleFilterChange('');
     setSortBy('default');
   };
 
@@ -267,21 +246,35 @@ export const CropSelector: React.FC<CropSelectorProps> = ({
             <input
               id="crop-quick-filter"
               type="text"
-              value={filterText}
-              onChange={(e) => setFilterText(e.target.value)}
+              value={activeFilterText}
+              onChange={(e) => handleFilterChange(e.target.value)}
               placeholder={t.searchPlaceholder}
-              className="w-full pl-8.5 pr-8 py-2 bg-white rounded-lg border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-hidden focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 shadow-2xs font-medium"
+              className="w-full pl-8.5 pr-14 py-2 bg-white rounded-lg border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-hidden focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 shadow-2xs font-medium"
             />
-            {filterText && (
-              <button
-                type="button"
-                onClick={() => setFilterText('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100 cursor-pointer"
-                aria-label="Clear search input"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
+            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+              {activeFilterText && (
+                <button
+                  type="button"
+                  onClick={() => handleFilterChange('')}
+                  className="p-1 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100 cursor-pointer"
+                  aria-label="Clear search input"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+              {onOpenVoiceSearch && (
+                <button
+                  type="button"
+                  id="crop-search-mic-btn"
+                  onClick={onOpenVoiceSearch}
+                  className="p-1 text-emerald-700 hover:text-emerald-900 rounded-full hover:bg-emerald-50 transition-colors cursor-pointer"
+                  title="Bol Kar Khojein / Voice Search"
+                  aria-label="Bol Kar Khojein / Voice Search"
+                >
+                  <Mic className="w-4 h-4 stroke-[2.2]" />
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Interactive Options Toggle Button */}
@@ -693,8 +686,8 @@ export const CropSelector: React.FC<CropSelectorProps> = ({
             No crops found matching your filters.
           </p>
           <p className="text-xs text-slate-500 mt-1">
-            {filterText
-              ? `No crop matching "${filterText}" in this view.`
+            {activeFilterText
+              ? `No crop matching "${activeFilterText}" in this view.`
               : 'Try changing category, market advice signal, or sorting.'}
           </p>
           <button
