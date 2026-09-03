@@ -6,7 +6,7 @@ import {
   MessageSquare,
   Share2,
   Smartphone,
-  Sun,
+  Moon,
   ShieldCheck,
   CheckCircle,
   HelpCircle,
@@ -18,8 +18,8 @@ import {
 interface KisanHelpViewProps {
   crop: CropData;
   language: Language;
-  isSunlightMode: boolean;
-  onToggleSunlightMode: () => void;
+  isDarkMode: boolean;
+  onToggleDarkMode: () => void;
   onNavigateToWeather: () => void;
   onNavigateToCrops: () => void;
 }
@@ -27,8 +27,8 @@ interface KisanHelpViewProps {
 export const KisanHelpView: React.FC<KisanHelpViewProps> = ({
   crop,
   language,
-  isSunlightMode,
-  onToggleSunlightMode,
+  isDarkMode,
+  onToggleDarkMode,
   onNavigateToWeather,
   onNavigateToCrops,
 }) => {

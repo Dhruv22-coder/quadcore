@@ -31,7 +31,7 @@ interface WeatherStorageViewProps {
   crop: CropData;
   language: Language;
   currentState?: IndianState;
-  isSunlightMode: boolean;
+  isDarkMode: boolean;
   onNavigateToProfit: () => void;
   onNavigateToHelp: () => void;
 }
@@ -40,7 +40,7 @@ export const WeatherStorageView: React.FC<WeatherStorageViewProps> = ({
   crop,
   language,
   currentState,
-  isSunlightMode,
+  isDarkMode,
   onNavigateToProfit,
   onNavigateToHelp,
 }) => {
@@ -153,7 +153,7 @@ export const WeatherStorageView: React.FC<WeatherStorageViewProps> = ({
   return (
     <div id="weather-storage-page" className="space-y-5">
       {/* 1. Page Header with Voice Audio Callout & Crop HD Photo */}
-      <section className="bg-white rounded-2xl p-4 sm:p-6 border border-slate-200 shadow-2xs">
+      <section className="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-2xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200">
           <div className="flex items-start gap-3">
             <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden border border-slate-200 shadow-2xs shrink-0 bg-slate-100 mt-0.5">

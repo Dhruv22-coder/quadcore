@@ -1,8 +1,13 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
   * {
     border-color: #e2e8f0;
+  }
+  .dark, .dark * {
+    border-color: #334155;
   }
   body {
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
@@ -10,6 +15,10 @@
     color: #0f172a;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+  html.dark, body.dark {
+    background-color: #0b1120;
+    color: #f1f5f9;
   }
   
   /* Clean utility custom scrollbar */
@@ -26,5 +35,12 @@
   }
   ::-webkit-scrollbar-thumb:hover {
     background: #94a3b8;
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    background: #475569;
+  }
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
   }
 }

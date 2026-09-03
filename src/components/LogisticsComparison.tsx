@@ -26,7 +26,7 @@ interface LogisticsComparisonProps {
   crop: CropData;
   language: Language;
   currentState: IndianState;
-  isSunlightMode: boolean;
+  isDarkMode: boolean;
   onNavigateToDecision?: () => void;
   onNavigateToWeather?: () => void;
 }
@@ -35,7 +35,7 @@ export const LogisticsComparison: React.FC<LogisticsComparisonProps> = ({
   crop,
   language,
   currentState,
-  isSunlightMode,
+  isDarkMode,
   onNavigateToDecision,
   onNavigateToWeather,
 }) => {
@@ -77,20 +77,20 @@ export const LogisticsComparison: React.FC<LogisticsComparisonProps> = ({
   return (
     <section
       id="logistics-comparison-section"
-      className="bg-white rounded-2xl p-4 sm:p-6 border border-slate-200 shadow-2xs"
+      className="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-2xs"
     >
       {/* Module Title & Subtitle with Active Crop Visual Tag */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
         <div>
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center font-bold">
+            <div className="w-6 h-6 rounded-md bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center font-bold">
               <IndianRupee className="w-3.5 h-3.5 stroke-[2.5]" />
             </div>
-            <h2 className="text-lg sm:text-xl font-black text-slate-950 tracking-tight">
+            <h2 className="text-lg sm:text-xl font-black text-slate-950 dark:text-white tracking-tight">
               {t.netProfitTitle}
             </h2>
           </div>
-          <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium mt-0.5">
             {t.netProfitSubtitle}
           </p>
         </div>

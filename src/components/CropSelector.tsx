@@ -28,7 +28,7 @@ interface CropSelectorProps {
   onSelectCrop: (cropId: string) => void;
   language: Language;
   onOpenVoiceSearch: () => void;
-  isSunlightMode: boolean;
+  isDarkMode: boolean;
   onProceedToDecision?: () => void;
 }
 
@@ -74,7 +74,7 @@ export const CropSelector: React.FC<CropSelectorProps> = ({
   onSelectCrop,
   language,
   onOpenVoiceSearch,
-  isSunlightMode,
+  isDarkMode,
   onProceedToDecision,
 }) => {
   const [filterText, setFilterText] = useState('');
@@ -556,12 +556,8 @@ export const CropSelector: React.FC<CropSelectorProps> = ({
               onClick={() => onSelectCrop(crop.id)}
               className={`group relative flex flex-col justify-between rounded-xl sm:rounded-2xl overflow-hidden transition-all duration-200 cursor-pointer select-none text-left active:scale-[0.98] ${
                 isSelected
-                  ? isSunlightMode
-                    ? 'bg-white ring-4 ring-black border-2 border-black shadow-lg'
-                    : 'bg-white ring-2.5 ring-emerald-600 border-2 border-emerald-600 shadow-md ring-offset-2 ring-offset-white'
-                  : isSunlightMode
-                  ? 'bg-white border-2 border-slate-800 shadow-xs hover:border-black'
-                  : 'bg-white border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-emerald-300 hover:-translate-y-0.5'
+                  ? 'bg-white dark:bg-slate-800 ring-2.5 ring-emerald-600 border-2 border-emerald-600 shadow-md ring-offset-2 ring-offset-white dark:ring-offset-slate-900'
+                  : 'bg-white dark:bg-slate-800/95 border border-slate-200/90 dark:border-slate-700/80 shadow-2xs hover:shadow-md hover:border-emerald-300 dark:hover:border-emerald-700 hover:-translate-y-0.5'
               }`}
               aria-pressed={isSelected}
               aria-label={`Select ${crop.name}, current mandi price ₹${crop.currentPrice} per quintal`}
@@ -640,25 +636,25 @@ export const CropSelector: React.FC<CropSelectorProps> = ({
               {/* Card Body Content */}
               <div className="w-full p-2.5 sm:p-3 flex flex-col flex-1 justify-between gap-2">
                 <div>
-                  <h3 className="font-extrabold text-xs sm:text-sm text-slate-900 group-hover:text-emerald-800 transition-colors leading-snug line-clamp-1">
+                  <h3 className="font-extrabold text-xs sm:text-sm text-slate-900 dark:text-white group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors leading-snug line-clamp-1">
                     {localizedName}
                   </h3>
-                  <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium truncate mt-0.5">
+                  <p className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate mt-0.5">
                     {secondaryName}
                   </p>
                 </div>
 
                 {/* Mandi Advice & Selection Action Cue */}
-                <div className="pt-2 border-t border-slate-100 flex flex-col gap-1.5">
-                  <div className="flex items-center justify-between text-[10px] font-semibold text-slate-500">
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-700/70 flex flex-col gap-1.5">
+                  <div className="flex items-center justify-between text-[10px] font-semibold text-slate-500 dark:text-slate-400">
                     <span>Advice:</span>
                     <span
                       className={`font-bold ${
                         isGreen
-                          ? 'text-emerald-700'
+                          ? 'text-emerald-700 dark:text-emerald-400'
                           : isAmber
-                          ? 'text-amber-700'
-                          : 'text-rose-700'
+                          ? 'text-amber-700 dark:text-amber-400'
+                          : 'text-rose-700 dark:text-rose-400'
                       }`}
                     >
                       {crop.decision.verdictLabel || (isGreen ? 'Sell Today' : isAmber ? 'Wait' : 'Caution')}
@@ -671,7 +667,7 @@ export const CropSelector: React.FC<CropSelectorProps> = ({
                       <span>Selected (चुना गया)</span>
                     </div>
                   ) : (
-                    <div className="w-full py-1.5 px-2 rounded-lg bg-slate-50 group-hover:bg-emerald-50 text-slate-600 group-hover:text-emerald-800 border border-slate-200/80 group-hover:border-emerald-200 text-[11px] font-bold flex items-center justify-center transition-colors">
+                    <div className="w-full py-1.5 px-2 rounded-lg bg-slate-50 dark:bg-slate-700/80 group-hover:bg-emerald-50 dark:group-hover:bg-emerald-950/60 text-slate-600 dark:text-slate-200 group-hover:text-emerald-800 dark:group-hover:text-emerald-300 border border-slate-200/80 dark:border-slate-600 group-hover:border-emerald-200 dark:group-hover:border-emerald-800 text-[11px] font-bold flex items-center justify-center transition-colors">
                       Select (चुनें)
                     </div>
                   )}

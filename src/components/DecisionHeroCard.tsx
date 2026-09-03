@@ -47,7 +47,7 @@ interface DecisionHeroCardProps {
   language: Language;
   onPlayAudio: () => void;
   isAudioPlaying: boolean;
-  isSunlightMode: boolean;
+  isDarkMode: boolean;
   currentState?: IndianState;
   onNavigateToCrops?: () => void;
   onNavigateToProfit?: () => void;
@@ -59,7 +59,7 @@ export const DecisionHeroCard: React.FC<DecisionHeroCardProps> = ({
   language,
   onPlayAudio,
   isAudioPlaying,
-  isSunlightMode,
+  isDarkMode,
   currentState,
   onNavigateToCrops,
   onNavigateToProfit,
@@ -188,13 +188,7 @@ export const DecisionHeroCard: React.FC<DecisionHeroCardProps> = ({
   };
 
   // Card theme styling
-  const cardBorder = isSunlightMode
-    ? 'border-2 border-slate-950 shadow-sm'
-    : isGreen
-    ? 'border-slate-200 shadow-2xs'
-    : isAmber
-    ? 'border-slate-200 shadow-2xs'
-    : 'border-slate-200 shadow-2xs';
+  const cardBorder = 'border-slate-200 dark:border-slate-800 shadow-2xs';
 
   const badgeBg = isGreen
     ? 'bg-emerald-700 text-white'
@@ -207,7 +201,7 @@ export const DecisionHeroCard: React.FC<DecisionHeroCardProps> = ({
   return (
     <section
       id="decision-hero-card"
-      className={`relative bg-white rounded-2xl p-4 sm:p-6 border transition-all ${cardBorder} overflow-hidden`}
+      className={`relative bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-6 border transition-all ${cardBorder} overflow-hidden`}
     >
       {/* Subtle top color stripe indicator */}
       <div
