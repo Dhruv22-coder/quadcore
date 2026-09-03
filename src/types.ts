@@ -13,6 +13,8 @@ export type Language =
   | 'as' // Assamese (অসমীয়া)
   | 'ur'; // Urdu (اردو)
 
+export type ActivePage = 'crops' | 'decision' | 'profit' | 'weather' | 'help';
+
 export type DecisionSignal = 'green' | 'amber' | 'red';
 
 export type VehicleType = 'pickup' | 'tractor' | 'cart' | 'truck';

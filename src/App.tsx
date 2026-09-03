@@ -5,13 +5,16 @@
 
 import React, { useState, useEffect } from 'react';
 import { mockCrops } from './data/cropsData';
-import { CropData, Language, IndianState } from './types';
+import { CropData, Language, IndianState, ActivePage } from './types';
 import { INDIAN_STATES, detectStateFromCoordinates } from './data/locations';
 import { Navbar } from './components/Navbar';
+import { PageNavigation } from './components/PageNavigation';
+import { ActiveCropBar } from './components/ActiveCropBar';
 import { CropSelector } from './components/CropSelector';
 import { DecisionHeroCard } from './components/DecisionHeroCard';
 import { LogisticsComparison } from './components/LogisticsComparison';
-import { OfflineAccessibilityBanner } from './components/OfflineAccessibilityBanner';
+import { WeatherStorageView } from './components/WeatherStorageView';
+import { KisanHelpView } from './components/KisanHelpView';
 import { VoiceSearchModal } from './components/VoiceSearchModal';
 import { LocationSelectorModal } from './components/LocationSelectorModal';
 import { speakText, stopSpeaking, translations } from './lib/utils';
@@ -20,6 +23,7 @@ import { Sprout, Radio, MapPin, CheckCircle, X } from 'lucide-react';
 export default function App() {
   const [crops] = useState<CropData[]>(mockCrops);
   const [selectedCropId, setSelectedCropId] = useState<string>('onion');
+  const [activePage, setActivePage] = useState<ActivePage>('crops');
   // Default to Maharashtra with Marathi, or auto-detect on mount
   const [currentState, setCurrentState] = useState<IndianState>(
     INDIAN_STATES.find((s) => s.id === 'maharashtra') || INDIAN_STATES[0]
@@ -102,8 +106,11 @@ export default function App() {
     }
   };
 
-  const handleSelectCrop = (cropId: string) => {
+  const handleSelectCrop = (cropId: string, autoAdvance: boolean = false) => {
     setSelectedCropId(cropId);
+    if (autoAdvance) {
+      setActivePage('decision');
+    }
   };
 
   return (
@@ -114,7 +121,7 @@ export default function App() {
           : 'bg-[#F8FAFC] text-slate-900'
       }`}
     >
-      {/* Top Navigation Bar */}
+      {/* Top Navigation Bar with Integrated Tabs & Mobile Menu */}
       <Navbar
         language={language}
         onLanguageChange={setLanguage}
@@ -124,6 +131,8 @@ export default function App() {
         onToggleSunlightMode={() => setIsSunlightMode(!isSunlightMode)}
         currentState={currentState}
         onOpenLocationModal={() => setIsLocationModalOpen(true)}
+        activePage={activePage}
+        onPageChange={setActivePage}
       />
 
       {/* Location Toast Notification */}
@@ -136,7 +145,7 @@ export default function App() {
             </div>
             <button
               onClick={() => setLocationToast(null)}
-              className="p-1 text-emerald-700 hover:text-emerald-900 rounded"
+              className="p-1 text-emerald-700 hover:text-emerald-900 rounded cursor-pointer"
               aria-label="Close notification"
             >
               <X className="w-4 h-4" />
@@ -146,7 +155,7 @@ export default function App() {
       )}
 
       {/* Main Content Area */}
-      <main className="max-w-6xl mx-auto px-3.5 sm:px-6 py-4 sm:py-6 space-y-6 pb-28 sm:pb-24">
+      <main className="max-w-6xl mx-auto px-3.5 sm:px-6 py-4 sm:py-6 space-y-5 pb-32 sm:pb-24">
         {/* Quick Live Status Ticker */}
         <div className="flex flex-wrap items-center justify-between gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-200 shadow-2xs text-xs">
           <div className="flex items-center gap-2">
@@ -162,7 +171,7 @@ export default function App() {
           <div className="flex items-center gap-3 text-slate-500 font-medium">
             <button
               onClick={() => setIsLocationModalOpen(true)}
-              className="inline-flex items-center gap-1 text-emerald-700 hover:underline font-bold text-[11px]"
+              className="inline-flex items-center gap-1 text-emerald-700 hover:underline font-bold text-[11px] cursor-pointer"
             >
               <MapPin className="w-3 h-3" />
               Change State
@@ -175,40 +184,82 @@ export default function App() {
           </div>
         </div>
 
-        {/* 1. Visual-First Crop Selection Section (All Indian Crops categorized) */}
-        <CropSelector
-          crops={crops}
-          selectedCropId={selectedCropId}
-          onSelectCrop={handleSelectCrop}
-          language={language}
-          onOpenVoiceSearch={() => setIsVoiceSearchOpen(true)}
-          isSunlightMode={isSunlightMode}
-        />
-
-        {/* 2. "Decision Signal" Recommendation Hero Card (Top Priority) */}
-        <DecisionHeroCard
-          crop={selectedCrop}
-          language={language}
-          onPlayAudio={handleToggleAudio}
-          isAudioPlaying={isAudioPlaying}
-          isSunlightMode={isSunlightMode}
-        />
-
-        {/* 3. In-Hand Profit & Logistics Comparison Module */}
-        <LogisticsComparison
-          crop={selectedCrop}
+        {/* Top Step Pages Navigation (Crops -> Decision -> Profit -> Weather -> Help) */}
+        <PageNavigation
+          activePage={activePage}
+          onPageChange={setActivePage}
           language={language}
           isSunlightMode={isSunlightMode}
         />
 
-        {/* 4. Offline & Accessibility Fallback Banner */}
-        <OfflineAccessibilityBanner
-          crop={selectedCrop}
-          language={language}
-          onPlayAudio={handleToggleAudio}
-          isAudioPlaying={isAudioPlaying}
-          isSunlightMode={isSunlightMode}
-        />
+        {/* Active Crop Context Strip (shown on non-crops pages for instant crop awareness) */}
+        {activePage !== 'crops' && (
+          <ActiveCropBar
+            crop={selectedCrop}
+            language={language}
+            onChangeCrop={() => setActivePage('crops')}
+            isSunlightMode={isSunlightMode}
+          />
+        )}
+
+        {/* Multi-Page Views */}
+        {activePage === 'crops' && (
+          <CropSelector
+            crops={crops}
+            selectedCropId={selectedCropId}
+            onSelectCrop={(id) => handleSelectCrop(id, false)}
+            language={language}
+            onOpenVoiceSearch={() => setIsVoiceSearchOpen(true)}
+            isSunlightMode={isSunlightMode}
+            onProceedToDecision={() => setActivePage('decision')}
+          />
+        )}
+
+        {activePage === 'decision' && (
+          <DecisionHeroCard
+            crop={selectedCrop}
+            language={language}
+            onPlayAudio={handleToggleAudio}
+            isAudioPlaying={isAudioPlaying}
+            isSunlightMode={isSunlightMode}
+            currentState={currentState}
+            onNavigateToCrops={() => setActivePage('crops')}
+            onNavigateToProfit={() => setActivePage('profit')}
+            onNavigateToWeather={() => setActivePage('weather')}
+          />
+        )}
+
+        {activePage === 'profit' && (
+          <LogisticsComparison
+            crop={selectedCrop}
+            language={language}
+            isSunlightMode={isSunlightMode}
+            onNavigateToDecision={() => setActivePage('decision')}
+            onNavigateToWeather={() => setActivePage('weather')}
+          />
+        )}
+
+        {activePage === 'weather' && (
+          <WeatherStorageView
+            crop={selectedCrop}
+            language={language}
+            currentState={currentState}
+            isSunlightMode={isSunlightMode}
+            onNavigateToProfit={() => setActivePage('profit')}
+            onNavigateToHelp={() => setActivePage('help')}
+          />
+        )}
+
+        {activePage === 'help' && (
+          <KisanHelpView
+            crop={selectedCrop}
+            language={language}
+            isSunlightMode={isSunlightMode}
+            onToggleSunlightMode={() => setIsSunlightMode(!isSunlightMode)}
+            onNavigateToWeather={() => setActivePage('weather')}
+            onNavigateToCrops={() => setActivePage('crops')}
+          />
+        )}
       </main>
 
       {/* Location / State Selector Modal */}
@@ -225,7 +276,7 @@ export default function App() {
         isOpen={isVoiceSearchOpen}
         onClose={() => setIsVoiceSearchOpen(false)}
         crops={crops}
-        onSelectCrop={handleSelectCrop}
+        onSelectCrop={(id) => handleSelectCrop(id, true)}
         language={language}
       />
 

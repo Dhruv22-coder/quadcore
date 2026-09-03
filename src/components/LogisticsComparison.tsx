@@ -22,12 +22,16 @@ interface LogisticsComparisonProps {
   crop: CropData;
   language: Language;
   isSunlightMode: boolean;
+  onNavigateToDecision?: () => void;
+  onNavigateToWeather?: () => void;
 }
 
 export const LogisticsComparison: React.FC<LogisticsComparisonProps> = ({
   crop,
   language,
   isSunlightMode,
+  onNavigateToDecision,
+  onNavigateToWeather,
 }) => {
   const [quantity, setQuantity] = useState<number>(40); // default 40 quintals (~ 1 tractor or pickup load)
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleType>('pickup');
@@ -296,6 +300,32 @@ export const LogisticsComparison: React.FC<LogisticsComparisonProps> = ({
           );
         })}
       </div>
+
+      {/* Page 3 Navigation Buttons */}
+      {(onNavigateToDecision || onNavigateToWeather) && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-slate-200 mt-5">
+          {onNavigateToDecision && (
+            <button
+              type="button"
+              onClick={onNavigateToDecision}
+              className="w-full sm:w-auto min-h-[48px] px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-800 font-bold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs"
+            >
+              <span>⬅️ 2. आज का निर्णय (Back to Decision)</span>
+            </button>
+          )}
+
+          {onNavigateToWeather && (
+            <button
+              type="button"
+              id="proceed-to-weather-btn"
+              onClick={onNavigateToWeather}
+              className="w-full sm:w-auto min-h-[48px] px-5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-extrabold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md"
+            >
+              <span>4. मौसम व भंडारण सुरक्षा (Weather & Safe Storage) ➡️</span>
+            </button>
+          )}
+        </div>
+      )}
     </section>
   );
 };
