@@ -1,4 +1,5 @@
 import { CropData, VehicleOption } from '../types';
+import { getCropImageUrl } from './cropImages';
 
 export const vehicleOptions: VehicleOption[] = [
   {
@@ -39,7 +40,7 @@ export const vehicleOptions: VehicleOption[] = [
   },
 ];
 
-export const mockCrops: CropData[] = [
+const baseCrops: CropData[] = [
   // ================= CEREALS & MILLETS =================
   {
     id: 'wheat',
@@ -2869,3 +2870,8 @@ export const mockCrops: CropData[] = [
     ],
   },
 ];
+
+export const mockCrops: CropData[] = baseCrops.map((c) => ({
+  ...c,
+  imageUrl: c.imageUrl || getCropImageUrl(c.id),
+}));

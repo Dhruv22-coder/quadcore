@@ -59,6 +59,7 @@ export interface CropData {
   marathiName?: string;
   regionalNames?: Partial<Record<Language, string>>;
   category: 'Cereals' | 'Pulses' | 'Oilseeds' | 'Spices' | 'Vegetables' | 'Cash Crops' | 'Fruits & Plantation';
+  imageUrl?: string;
   colorTheme: string;
   badgeBg: string;
   currentPrice: number;

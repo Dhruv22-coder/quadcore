@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { CropData, Language, VehicleType } from '../types';
 import { vehicleOptions } from '../data/cropsData';
 import { translations, formatINR } from '../lib/utils';
+import { CropImage } from '../data/cropImages';
 import {
   Truck,
   TrendingUp,
@@ -69,19 +70,42 @@ export const LogisticsComparison: React.FC<LogisticsComparisonProps> = ({
       id="logistics-comparison-section"
       className="bg-white rounded-2xl p-4 sm:p-6 border border-slate-200 shadow-2xs"
     >
-      {/* Module Title & Subtitle */}
-      <div className="mb-5">
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center font-bold">
-            <IndianRupee className="w-3.5 h-3.5 stroke-[2.5]" />
+      {/* Module Title & Subtitle with Active Crop Visual Tag */}
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+        <div>
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center font-bold">
+              <IndianRupee className="w-3.5 h-3.5 stroke-[2.5]" />
+            </div>
+            <h2 className="text-lg sm:text-xl font-black text-slate-950 tracking-tight">
+              {t.netProfitTitle}
+            </h2>
           </div>
-          <h2 className="text-lg sm:text-xl font-black text-slate-950 tracking-tight">
-            {t.netProfitTitle}
-          </h2>
+          <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
+            {t.netProfitSubtitle}
+          </p>
         </div>
-        <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
-          {t.netProfitSubtitle}
-        </p>
+
+        {/* Active Crop HD Badge */}
+        <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 shadow-2xs">
+          <div className="w-9 h-9 rounded-lg overflow-hidden border border-slate-200 shadow-2xs shrink-0 bg-white">
+            <CropImage
+              id={crop.id}
+              name={crop.name}
+              className="w-full h-full"
+              imgClassName="w-full h-full object-cover"
+              fallbackIconClassName="w-5 h-5"
+            />
+          </div>
+          <div className="text-xs">
+            <span className="font-extrabold text-slate-900 block leading-tight">
+              {crop.name} ({crop.regionalNames?.[language] || crop.hindiName})
+            </span>
+            <span className="text-[11px] text-emerald-700 font-bold">
+              Rate: ₹{crop.currentPrice.toLocaleString('en-IN')}/qtl
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Input Controls: Quantity & Vehicle Selection */}

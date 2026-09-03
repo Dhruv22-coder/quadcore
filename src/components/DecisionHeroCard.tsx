@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { CropData, Language, IndianState } from '../types';
 import { translations, formatINR, speakText, stopSpeaking } from '../lib/utils';
+import { CropImage } from '../data/cropImages';
 import {
   fetchLiveWeatherData,
   getSimulatedWeatherData,
@@ -525,6 +526,38 @@ export const DecisionHeroCard: React.FC<DecisionHeroCardProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
         {/* Left Column: Huge Action Verdict & Rate */}
         <div className="lg:col-span-7">
+          {/* Active Crop Identity Banner with Clear HD Photo */}
+          <div className="flex items-center gap-3.5 mb-3.5 p-3 rounded-xl bg-slate-50/80 border border-slate-200">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden shadow-xs border border-slate-200 shrink-0 bg-white">
+              <CropImage
+                id={crop.id}
+                name={crop.name}
+                className="w-full h-full"
+                imgClassName="w-full h-full object-cover"
+                fallbackIconClassName="w-8 h-8"
+              />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider px-2 py-0.5 rounded-sm bg-emerald-100 text-emerald-800">
+                  {crop.category}
+                </span>
+                <span className="text-[11px] font-semibold text-slate-500">
+                  APMC Primary Commodity
+                </span>
+              </div>
+              <h2 className="text-base sm:text-xl font-black text-slate-950 truncate leading-tight mt-0.5">
+                {crop.name}{' '}
+                <span className="text-xs sm:text-sm font-bold text-slate-500">
+                  ({crop.regionalNames?.[language] || crop.hindiName})
+                </span>
+              </h2>
+              <p className="text-[11px] sm:text-xs text-slate-500 font-medium truncate mt-0.5">
+                Arrivals: <span className="font-bold text-slate-700">{crop.arrivalsToday}</span> • Volume Trend: <span className="font-bold text-slate-700">{crop.arrivalsTrend}</span>
+              </p>
+            </div>
+          </div>
+
           {/* Main Action Headline */}
           <div className="mb-2">
             <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-slate-950 tracking-tight leading-tight">

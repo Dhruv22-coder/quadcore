@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { CropData, Language } from '../types';
 import { CropIcon } from './CropIcons';
+import { CropImage } from '../data/cropImages';
 import { translations } from '../lib/utils';
 import { NAV_TRANSLATIONS } from '../data/navigationTranslations';
 import {
@@ -566,9 +567,19 @@ export const CropSelector: React.FC<CropSelectorProps> = ({
                 </div>
               )}
 
-              {/* Crop Visual Icon */}
-              <div className="w-12 h-12 flex items-center justify-center my-1">
-                <CropIcon id={crop.id} className="w-11 h-11" />
+              {/* Real HD Crop Photograph with fallback */}
+              <div className="w-full h-24 sm:h-28 rounded-lg overflow-hidden relative my-1 bg-slate-100 border border-slate-200/80 shadow-2xs group">
+                <CropImage
+                  id={crop.id}
+                  name={crop.name}
+                  className="w-full h-full"
+                  imgClassName="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  fallbackIconClassName="w-9 h-9"
+                />
+                {/* Category Pill Tag Overlay */}
+                <span className="absolute bottom-1 left-1 px-1.5 py-0.2 rounded text-[9px] font-bold bg-slate-950/70 backdrop-blur-xs text-white">
+                  {crop.category}
+                </span>
               </div>
 
               {/* Crop Name & Localized Name */}
@@ -634,8 +645,14 @@ export const CropSelector: React.FC<CropSelectorProps> = ({
       {onProceedToDecision && (
         <div className="mt-4 p-4 rounded-xl bg-emerald-50/90 border border-emerald-200 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-2xs">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-emerald-700 text-white flex items-center justify-center font-bold text-sm shadow-2xs">
-              ✓
+            <div className="w-12 h-12 rounded-xl overflow-hidden border border-emerald-300 shadow-2xs shrink-0 bg-white">
+              <CropImage
+                id={selectedCropId}
+                name={crops.find((c) => c.id === selectedCropId)?.name}
+                className="w-full h-full"
+                imgClassName="w-full h-full object-cover"
+                fallbackIconClassName="w-7 h-7"
+              />
             </div>
             <div>
               <span className="text-[11px] font-black text-emerald-900 uppercase tracking-wide">

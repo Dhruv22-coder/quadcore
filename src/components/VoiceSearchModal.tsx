@@ -3,6 +3,7 @@ import { CropData, Language } from '../types';
 import { translations } from '../lib/utils';
 import { Mic, X, Sparkles, CheckCircle2 } from 'lucide-react';
 import { CropIcon } from './CropIcons';
+import { CropImage } from '../data/cropImages';
 
 interface VoiceSearchModalProps {
   isOpen: boolean;
@@ -196,7 +197,15 @@ export const VoiceSearchModal: React.FC<VoiceSearchModalProps> = ({
         {matchingCrop && (
           <div className="mt-3.5 w-full p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
             <div className="flex items-center gap-2.5 text-left">
-              <CropIcon id={matchingCrop.id} className="w-8 h-8" />
+              <div className="w-10 h-10 rounded-lg overflow-hidden border border-slate-200 shadow-2xs shrink-0 bg-white">
+                <CropImage
+                  id={matchingCrop.id}
+                  name={matchingCrop.name}
+                  className="w-full h-full"
+                  imgClassName="w-full h-full object-cover"
+                  fallbackIconClassName="w-6 h-6"
+                />
+              </div>
               <div>
                 <span className="font-bold text-sm text-slate-900 block">
                   {matchingCrop.regionalNames?.[language] || matchingCrop.name}
@@ -232,7 +241,15 @@ export const VoiceSearchModal: React.FC<VoiceSearchModalProps> = ({
                   onClick={() => handleManualVoicePick(crop)}
                   className="min-h-[44px] p-2 bg-white hover:bg-slate-50 rounded-lg border border-slate-200 text-xs font-semibold text-slate-800 flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
                 >
-                  <CropIcon id={crop.id} className="w-4 h-4 shrink-0" />
+                  <div className="w-5 h-5 rounded overflow-hidden shrink-0">
+                    <CropImage
+                      id={crop.id}
+                      name={crop.name}
+                      className="w-full h-full"
+                      imgClassName="w-full h-full object-cover"
+                      fallbackIconClassName="w-4 h-4"
+                    />
+                  </div>
                   <span className="truncate">{label.split(' ')[0]}</span>
                 </button>
               );

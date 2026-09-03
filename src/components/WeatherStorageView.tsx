@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { CropData, Language, IndianState } from '../types';
 import { formatINR, speakText, stopSpeaking } from '../lib/utils';
+import { CropImage } from '../data/cropImages';
 import {
   fetchLiveWeatherData,
   getSimulatedWeatherData,
@@ -151,24 +152,35 @@ export const WeatherStorageView: React.FC<WeatherStorageViewProps> = ({
 
   return (
     <div id="weather-storage-page" className="space-y-5">
-      {/* 1. Page Header with Voice Audio Callout */}
+      {/* 1. Page Header with Voice Audio Callout & Crop HD Photo */}
       <section className="bg-white rounded-2xl p-4 sm:p-6 border border-slate-200 shadow-2xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-black uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/80">
-                Page 4 of 5
-              </span>
-              <span className="text-xs text-slate-500 font-bold">
-                {currentState?.name} Mandi Zone
-              </span>
+          <div className="flex items-start gap-3">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden border border-slate-200 shadow-2xs shrink-0 bg-slate-100 mt-0.5">
+              <CropImage
+                id={crop.id}
+                name={crop.name}
+                className="w-full h-full"
+                imgClassName="w-full h-full object-cover"
+                fallbackIconClassName="w-7 h-7"
+              />
             </div>
-            <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-1">
-              Weather Forecast & Safe Crop Storage
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-600 font-medium">
-              मौसम पूर्वानुमान और {crop.name} ({crop.hindiName}) का सुरक्षित भंडारण दिशा-निर्देश
-            </p>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-black uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/80">
+                  Page 4 of 5
+                </span>
+                <span className="text-xs text-slate-500 font-bold">
+                  {currentState?.name} Mandi Zone
+                </span>
+              </div>
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-1">
+                Weather Forecast & Safe Crop Storage
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-600 font-medium">
+                मौसम पूर्वानुमान और {crop.name} ({crop.hindiName}) का सुरक्षित भंडारण दिशा-निर्देश
+              </p>
+            </div>
           </div>
 
           <button

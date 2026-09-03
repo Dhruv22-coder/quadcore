@@ -3,6 +3,7 @@ import { CropData, Language } from '../types';
 import { formatINR, translations } from '../lib/utils';
 import { TrendingUp, Pause, AlertTriangle, ArrowLeftRight, Sparkles } from 'lucide-react';
 import { NAV_TRANSLATIONS } from '../data/navigationTranslations';
+import { CropImage } from '../data/cropImages';
 
 interface ActiveCropBarProps {
   crop: CropData;
@@ -39,21 +40,14 @@ export const ActiveCropBar: React.FC<ActiveCropBarProps> = ({
       }`}
     >
       <div className="flex items-center gap-3">
-        <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center text-xl font-bold shadow-2xs border shrink-0"
-          style={{ backgroundColor: `${crop.colorTheme}15`, borderColor: `${crop.colorTheme}40` }}
-        >
-          {crop.category === 'Vegetables'
-            ? '🧅'
-            : crop.category === 'Cereals'
-            ? '🌾'
-            : crop.category === 'Pulses'
-            ? '🌱'
-            : crop.category === 'Oilseeds'
-            ? '🌻'
-            : crop.category === 'Cash Crops'
-            ? '🌿'
-            : '🍎'}
+        <div className="w-11 h-11 rounded-xl overflow-hidden shadow-2xs border border-slate-200 shrink-0 bg-slate-100">
+          <CropImage
+            id={crop.id}
+            name={crop.name}
+            className="w-full h-full"
+            imgClassName="w-full h-full object-cover"
+            fallbackIconClassName="w-6 h-6"
+          />
         </div>
 
         <div>
