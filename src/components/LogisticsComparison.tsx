@@ -26,7 +26,8 @@ interface LogisticsComparisonProps {
   crop: CropData;
   language: Language;
   currentState: IndianState;
-  isDarkMode: boolean;
+  isSunlightMode?: boolean;
+  isDarkMode?: boolean;
   onNavigateToDecision?: () => void;
   onNavigateToWeather?: () => void;
 }
@@ -35,7 +36,8 @@ export const LogisticsComparison: React.FC<LogisticsComparisonProps> = ({
   crop,
   language,
   currentState,
-  isDarkMode,
+  isSunlightMode = false,
+  isDarkMode = false,
   onNavigateToDecision,
   onNavigateToWeather,
 }) => {

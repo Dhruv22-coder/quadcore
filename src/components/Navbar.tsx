@@ -27,8 +27,10 @@ interface NavbarProps {
   onLanguageChange: (lang: Language) => void;
   isAudioPlaying: boolean;
   onToggleAudio: () => void;
-  isDarkMode: boolean;
-  onToggleDarkMode: () => void;
+  isSunlightMode?: boolean;
+  onToggleSunlightMode?: () => void;
+  isDarkMode?: boolean;
+  onToggleDarkMode?: () => void;
   currentState: IndianState;
   onOpenLocationModal: () => void;
   onOpenAgriTipsModal: () => void;
@@ -194,6 +196,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onLanguageChange,
   isAudioPlaying,
   onToggleAudio,
+  isSunlightMode,
+  onToggleSunlightMode,
   isDarkMode,
   onToggleDarkMode,
   currentState,
@@ -202,6 +206,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   activePage,
   onPageChange,
 }) => {
+  const isDark = isSunlightMode ?? isDarkMode ?? false;
+  const toggleDark = onToggleSunlightMode || onToggleDarkMode || (() => {});
   const [langMenuOpen, setLangMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const t = translations[language] || translations.en;
@@ -302,24 +308,24 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               id="header-theme-toggle-btn"
               type="button"
-              onClick={onToggleDarkMode}
+              onClick={toggleDark}
               className={`h-8 sm:h-9 lg:h-10 px-2 sm:px-2.5 rounded-lg border text-xs font-black flex items-center gap-1 sm:gap-1.5 transition-all shadow-2xs cursor-pointer shrink-0 ${
-                isDarkMode
+                isDark
                   ? 'bg-slate-800 hover:bg-slate-700 text-amber-300 border-slate-700 ring-1 ring-amber-400/30'
                   : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
               }`}
-              title={isDarkMode ? themeText.lightMode : themeText.darkMode}
-              aria-label={`Toggle Theme: currently ${isDarkMode ? 'Dark' : 'Light'}`}
+              title={isDark ? themeText.lightMode : themeText.darkMode}
+              aria-label={`Toggle Theme: currently ${isDark ? 'Dark' : 'Light'}`}
               role="switch"
-              aria-checked={isDarkMode}
+              aria-checked={isDark}
             >
-              {isDarkMode ? (
+              {isDark ? (
                 <Sun className="w-3.5 h-3.5 text-amber-400 stroke-[2.5]" />
               ) : (
                 <Moon className="w-3.5 h-3.5 text-slate-600 stroke-[2.2]" />
               )}
               <span className="hidden xl:inline text-[11px] font-black">
-                {isDarkMode ? themeText.darkModeShort : themeText.lightModeShort}
+                {isDark ? themeText.darkModeShort : themeText.lightModeShort}
               </span>
             </button>
 
@@ -507,21 +513,21 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 type="button"
                 id="menu-theme-toggle-btn"
-                onClick={onToggleDarkMode}
+                onClick={toggleDark}
                 className={`w-full min-h-[44px] px-3 rounded-xl border text-xs font-bold flex items-center justify-between cursor-pointer transition-all select-none ${
-                  isDarkMode
+                  isDark
                     ? 'bg-slate-800/90 border-slate-700 text-slate-100 font-black ring-1 ring-amber-400/30 shadow-xs'
                     : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800'
                 }`}
                 role="switch"
-                aria-checked={isDarkMode}
-                aria-label={`Toggle Theme: currently ${isDarkMode ? 'Dark' : 'Light'}`}
+                aria-checked={isDark}
+                aria-label={`Toggle Theme: currently ${isDark ? 'Dark' : 'Light'}`}
               >
                 <div className="flex items-center gap-2.5 truncate">
                   <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-                    isDarkMode ? 'bg-slate-700 text-amber-300' : 'bg-slate-200 text-slate-700'
+                    isDark ? 'bg-slate-700 text-amber-300' : 'bg-slate-200 text-slate-700'
                   }`}>
-                    {isDarkMode ? (
+                    {isDark ? (
                       <Sun className="w-4 h-4 text-amber-400 stroke-[2.5]" />
                     ) : (
                       <Moon className="w-4 h-4 text-slate-600 stroke-[2.2]" />
@@ -529,7 +535,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   </div>
                   <div className="text-left truncate">
                     <span className="truncate font-black block text-slate-900 dark:text-white">
-                      {themeText.themeLabel}: {isDarkMode ? themeText.darkModeShort : themeText.lightModeShort}
+                      {themeText.themeLabel}: {isDark ? themeText.darkModeShort : themeText.lightModeShort}
                     </span>
                     <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium block truncate">
                       {themeText.themeTogglePrompt}
@@ -540,11 +546,11 @@ export const Navbar: React.FC<NavbarProps> = ({
                 {/* Visual Toggle Switch */}
                 <div
                   className={`w-11 h-6 rounded-full p-0.5 flex items-center transition-colors duration-200 shrink-0 ${
-                    isDarkMode ? 'bg-amber-500 justify-end' : 'bg-slate-300 justify-start'
+                    isDark ? 'bg-amber-500 justify-end' : 'bg-slate-300 justify-start'
                   }`}
                 >
                   <div className="w-5 h-5 rounded-full bg-white shadow-xs flex items-center justify-center">
-                    {isDarkMode ? (
+                    {isDark ? (
                       <Sun className="w-3 h-3 text-amber-600" />
                     ) : (
                       <Moon className="w-3 h-3 text-slate-700" />
