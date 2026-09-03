@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CropData, Language, VehicleType } from '../types';
+import { CropData, Language, VehicleType, IndianState } from '../types';
 import { vehicleOptions } from '../data/cropsData';
 import { translations, formatINR } from '../lib/utils';
 import { CropImage } from '../data/cropImages';
@@ -17,11 +17,15 @@ import {
   ShieldCheck,
   AlertCircle,
   Clock,
+  Building2,
+  MapPin,
+  Filter,
 } from 'lucide-react';
 
 interface LogisticsComparisonProps {
   crop: CropData;
   language: Language;
+  currentState: IndianState;
   isSunlightMode: boolean;
   onNavigateToDecision?: () => void;
   onNavigateToWeather?: () => void;
@@ -30,18 +34,23 @@ interface LogisticsComparisonProps {
 export const LogisticsComparison: React.FC<LogisticsComparisonProps> = ({
   crop,
   language,
+  currentState,
   isSunlightMode,
   onNavigateToDecision,
   onNavigateToWeather,
 }) => {
   const [quantity, setQuantity] = useState<number>(40); // default 40 quintals (~ 1 tractor or pickup load)
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleType>('pickup');
+  const [radiusLimit, setRadiusLimit] = useState<number>(100); // 100km maximum radius filter
 
   const t = translations[language];
   const vehicle = vehicleOptions.find((v) => v.id === selectedVehicle) || vehicleOptions[0];
 
+  // Filter mandis within radiusLimit (all mandis are guaranteed within 100 km and same state)
+  const displayedMandis = crop.mandis.filter((m) => m.distanceKm <= radiusLimit);
+
   // Calculate comparisons for each mandi
-  const comparisons = crop.mandis.map((mandi) => {
+  const comparisons = displayedMandis.map((mandi) => {
     const grossSale = mandi.ratePerQuintal * quantity;
     // Round trip distance (to mandi and back to village)
     const roundTripKm = mandi.distanceKm * 2;
@@ -61,7 +70,7 @@ export const LogisticsComparison: React.FC<LogisticsComparisonProps> = ({
   // Sort by netCash descending to identify best profit
   const bestOption = [...comparisons].sort((a, b) => b.netCash - a.netCash)[0];
   const worstOption = [...comparisons].sort((a, b) => a.netCash - b.netCash)[0];
-  const maxSavings = bestOption.netCash - worstOption.netCash;
+  const maxSavings = bestOption && worstOption ? bestOption.netCash - worstOption.netCash : 0;
 
   const quickQuantities = [15, 30, 50, 100];
 
@@ -193,8 +202,58 @@ export const LogisticsComparison: React.FC<LogisticsComparisonProps> = ({
         </div>
       </div>
 
+      {/* 100km Same-State Mandi Network Banner */}
+      <div className="mb-5 p-4 rounded-xl bg-linear-to-r from-emerald-50 via-teal-50/50 to-emerald-50 border border-emerald-200/90 shadow-2xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-emerald-800 text-white uppercase tracking-wider">
+                <Navigation className="w-3 h-3" />
+                <span>&le; 100 KM MANDIS</span>
+              </span>
+              <span className="text-xs font-extrabold text-emerald-900 bg-white/90 px-2.5 py-0.5 rounded-full border border-emerald-300">
+                State: {currentState.name} ({currentState.nativeName})
+              </span>
+            </div>
+            <p className="text-xs sm:text-sm font-semibold text-emerald-950 mt-1.5 leading-snug">
+              Displaying real APMC mandis located exclusively in <strong>{currentState.name}</strong> within 100 km of your selected state or GPS coordinates.
+            </p>
+          </div>
+
+          {/* Radius Filter Pills */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            <span className="text-[11px] font-bold text-slate-500 mr-1 flex items-center gap-1">
+              <Filter className="w-3 h-3 text-slate-400" />
+              Radius:
+            </span>
+            {[
+              { label: 'All (< 100 km)', val: 100 },
+              { label: '< 50 km', val: 50 },
+              { label: '< 30 km', val: 30 },
+            ].map((rf) => {
+              const count = crop.mandis.filter((m) => m.distanceKm <= rf.val).length;
+              const isActive = radiusLimit === rf.val;
+              return (
+                <button
+                  key={rf.val}
+                  type="button"
+                  onClick={() => setRadiusLimit(rf.val)}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    isActive
+                      ? 'bg-emerald-800 text-white shadow-xs'
+                      : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
+                  }`}
+                >
+                  {rf.label} ({count})
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
       {/* Decision Insight Pill if Far Mandi has deceptive rate */}
-      {maxSavings > 500 && (
+      {maxSavings > 500 && bestOption && (
         <div className="mb-5 p-3 sm:p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-950 flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-emerald-700 text-white flex items-center justify-center shrink-0">
             <Award className="w-4 h-4" />
@@ -215,115 +274,144 @@ export const LogisticsComparison: React.FC<LogisticsComparisonProps> = ({
       )}
 
       {/* Side-by-Side Mandi Comparison Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
-        {comparisons.map((item) => {
-          const isBest = item.mandi.id === bestOption.mandi.id;
+      {comparisons.length === 0 ? (
+        <div className="p-8 text-center bg-slate-50 rounded-xl border border-slate-200 my-4">
+          <AlertCircle className="w-8 h-8 text-amber-600 mx-auto mb-2" />
+          <p className="font-bold text-slate-800 text-sm">No mandis found within {radiusLimit} km</p>
+          <p className="text-xs text-slate-600 mt-1">
+            Click 'All (&lt; 100 km)' above to view all verified {currentState.name} mandis within the 100 km radius.
+          </p>
+          <button
+            type="button"
+            onClick={() => setRadiusLimit(100)}
+            className="mt-3 px-3 py-1.5 bg-emerald-700 text-white text-xs font-bold rounded-lg hover:bg-emerald-800 transition-colors"
+          >
+            Show All (&lt; 100 km)
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+          {comparisons.map((item) => {
+            const isBest = bestOption && item.mandi.id === bestOption.mandi.id;
 
-          return (
-            <div
-              key={item.mandi.id}
-              className={`relative rounded-xl p-4 flex flex-col justify-between transition-all ${
-                isBest
-                  ? isSunlightMode
-                    ? 'bg-white ring-3 ring-slate-950 shadow-sm border-2 border-slate-950'
-                    : 'bg-white ring-2 ring-emerald-600 border-emerald-600 shadow-xs'
-                  : 'bg-white border border-slate-200 shadow-2xs hover:border-slate-300'
-              }`}
-            >
-              {/* Best In-Hand Profit Badge */}
-              {isBest && (
-                <div className="absolute -top-2.5 left-3.5 inline-flex items-center gap-1 bg-emerald-700 text-white text-[10px] font-bold uppercase px-2 py-0.5 rounded shadow-2xs">
-                  <Award className="w-3 h-3" />
-                  <span>{t.bestProfitBadge}</span>
-                </div>
-              )}
-
-              <div>
-                {/* Mandi Name & Location */}
-                <div className="flex items-start justify-between gap-2 mt-1 mb-2">
-                  <div>
-                    <h3 className="font-bold text-sm sm:text-base text-slate-900 leading-snug">
-                      {item.mandi.name}
-                    </h3>
-                    <p className="text-[11px] text-slate-500 font-medium flex items-center gap-1 mt-0.5">
-                      <Navigation className="w-3 h-3 text-slate-400" />
-                      {item.mandi.distanceKm} km away ({item.roundTripKm} km round trip)
-                    </p>
+            return (
+              <div
+                key={item.mandi.id}
+                className={`relative rounded-xl p-4 flex flex-col justify-between transition-all ${
+                  isBest
+                    ? isSunlightMode
+                      ? 'bg-white ring-3 ring-slate-950 shadow-sm border-2 border-slate-950'
+                      : 'bg-white ring-2 ring-emerald-600 border-emerald-600 shadow-xs'
+                    : 'bg-white border border-slate-200 shadow-2xs hover:border-slate-300'
+                }`}
+              >
+                {/* Best In-Hand Profit Badge */}
+                {isBest && (
+                  <div className="absolute -top-2.5 left-3.5 inline-flex items-center gap-1 bg-emerald-700 text-white text-[10px] font-bold uppercase px-2 py-0.5 rounded shadow-2xs">
+                    <Award className="w-3 h-3" />
+                    <span>{t.bestProfitBadge}</span>
                   </div>
+                )}
 
-                  <span className="text-xs font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 shrink-0 tabular-nums">
-                    {formatINR(item.mandi.ratePerQuintal)} / qtl
-                  </span>
-                </div>
-
-                {/* The Math Formula breakdown: Gross - Fuel = Net */}
-                <div className="space-y-1.5 mt-3 pt-3 border-t border-slate-100 text-xs">
-                  {/* Gross Sale */}
-                  <div className="flex items-center justify-between text-slate-600">
-                    <span className="font-medium">{t.grossSale} ({quantity} qtl):</span>
-                    <span className="font-bold text-slate-900 tabular-nums">
-                      {formatINR(item.grossSale)}
-                    </span>
-                  </div>
-
-                  {/* Fuel / Transport Cost */}
-                  <div className="flex items-center justify-between text-red-600 font-medium">
-                    <span className="flex items-center gap-1">
-                      <Minus className="w-3 h-3" />
-                      <span>{t.dieselTransportCost}:</span>
-                    </span>
-                    <span className="font-bold tabular-nums">
-                      -{formatINR(item.transportCost)}
-                    </span>
-                  </div>
-
-                  {/* Divider Line */}
-                  <div className="border-t border-dashed border-slate-200 my-1" />
-
-                  {/* Actual Net Cash In Hand */}
-                  <div
-                    className={`p-2.5 rounded-lg ${
-                      isBest ? 'bg-emerald-50 border border-emerald-200' : 'bg-slate-50 border border-slate-200'
-                    }`}
-                  >
-                    <div className="flex items-baseline justify-between gap-2">
-                      <span className="text-[11px] font-bold text-slate-700 uppercase tracking-tight">
-                        {t.actualNetCash}:
-                      </span>
-                      <span
-                        className={`text-base sm:text-lg font-black tracking-tight tabular-nums ${
-                          isBest ? 'text-emerald-900' : 'text-slate-900'
-                        }`}
-                      >
-                        {formatINR(item.netCash)}
+                <div>
+                  {/* Mandi Name, Region & State */}
+                  <div className="mt-1 mb-2.5">
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="font-black text-sm sm:text-base text-slate-900 leading-snug">
+                        {item.mandi.name}
+                      </h3>
+                      <span className="text-xs font-black text-slate-900 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 shrink-0 tabular-nums">
+                        {formatINR(item.mandi.ratePerQuintal)} / qtl
                       </span>
                     </div>
 
-                    {isBest && maxSavings > 0 && (
-                      <p className="text-[10px] font-bold text-emerald-800 mt-0.5 flex items-center gap-1">
-                        <TrendingUp className="w-3 h-3" />
-                        + {formatINR(maxSavings)} extra in your pocket!
-                      </p>
-                    )}
+                    {/* Prominent Mandi Region and State Badges (Requirement: Display name, region & state of the mandi) */}
+                    <div className="flex flex-wrap items-center gap-1.5 mt-2 text-[11px]">
+                      <span className="inline-flex items-center gap-1 text-slate-700 bg-slate-100/90 font-medium px-2 py-0.5 rounded border border-slate-200 shadow-2xs">
+                        <MapPin className="w-3 h-3 text-emerald-700 shrink-0" />
+                        <span>Region: <strong className="text-slate-900 font-bold">{item.mandi.region}</strong></span>
+                      </span>
+                      <span className="inline-flex items-center gap-1 text-slate-700 bg-slate-100/90 font-medium px-2 py-0.5 rounded border border-slate-200 shadow-2xs">
+                        <Building2 className="w-3 h-3 text-emerald-700 shrink-0" />
+                        <span>State: <strong className="text-slate-900 font-bold">{item.mandi.state}</strong></span>
+                      </span>
+                    </div>
+
+                    <p className="text-[11px] text-emerald-800 font-bold flex items-center gap-1 mt-2">
+                      <Navigation className="w-3 h-3 text-emerald-700 shrink-0" />
+                      <span>{item.mandi.distanceKm} km away ({item.roundTripKm} km round trip) • &le; 100 km limit</span>
+                    </p>
+                  </div>
+
+                  {/* The Math Formula breakdown: Gross - Fuel = Net */}
+                  <div className="space-y-1.5 mt-3 pt-3 border-t border-slate-100 text-xs">
+                    {/* Gross Sale */}
+                    <div className="flex items-center justify-between text-slate-600">
+                      <span className="font-medium">{t.grossSale} ({quantity} qtl):</span>
+                      <span className="font-bold text-slate-900 tabular-nums">
+                        {formatINR(item.grossSale)}
+                      </span>
+                    </div>
+
+                    {/* Fuel / Transport Cost */}
+                    <div className="flex items-center justify-between text-red-600 font-medium">
+                      <span className="flex items-center gap-1">
+                        <Minus className="w-3 h-3" />
+                        <span>{t.dieselTransportCost}:</span>
+                      </span>
+                      <span className="font-bold tabular-nums">
+                        -{formatINR(item.transportCost)}
+                      </span>
+                    </div>
+
+                    {/* Divider Line */}
+                    <div className="border-t border-dashed border-slate-200 my-1" />
+
+                    {/* Actual Net Cash In Hand */}
+                    <div
+                      className={`p-2.5 rounded-lg ${
+                        isBest ? 'bg-emerald-50 border border-emerald-200' : 'bg-slate-50 border border-slate-200'
+                      }`}
+                    >
+                      <div className="flex items-baseline justify-between gap-2">
+                        <span className="text-[11px] font-bold text-slate-700 uppercase tracking-tight">
+                          {t.actualNetCash}:
+                        </span>
+                        <span
+                          className={`text-base sm:text-lg font-black tracking-tight tabular-nums ${
+                            isBest ? 'text-emerald-900' : 'text-slate-900'
+                          }`}
+                        >
+                          {formatINR(item.netCash)}
+                        </span>
+                      </div>
+
+                      {isBest && maxSavings > 0 && (
+                        <p className="text-[10px] font-bold text-emerald-800 mt-0.5 flex items-center gap-1">
+                          <TrendingUp className="w-3 h-3" />
+                          + {formatINR(maxSavings)} extra in your pocket!
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Mandi details footer: Buyers, Payment */}
+                <div className="mt-3 pt-2.5 border-t border-slate-100 grid grid-cols-2 gap-2 text-[10px] text-slate-500 font-medium">
+                  <div>
+                    <span className="text-slate-400 block">Payment</span>
+                    <span className="font-bold text-slate-700">{item.mandi.paymentTerms}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block">Active Traders</span>
+                    <span className="font-bold text-slate-700">{item.mandi.buyerCount} licensed</span>
                   </div>
                 </div>
               </div>
-
-              {/* Mandi details footer: Buyers, Payment */}
-              <div className="mt-3 pt-2.5 border-t border-slate-100 grid grid-cols-2 gap-2 text-[10px] text-slate-500 font-medium">
-                <div>
-                  <span className="text-slate-400 block">Payment</span>
-                  <span className="font-bold text-slate-700">{item.mandi.paymentTerms}</span>
-                </div>
-                <div>
-                  <span className="text-slate-400 block">Active Traders</span>
-                  <span className="font-bold text-slate-700">{item.mandi.buyerCount} licensed</span>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Page 3 Navigation Buttons */}
       {(onNavigateToDecision || onNavigateToWeather) && (

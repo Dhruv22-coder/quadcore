@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CropIcon } from '../components/CropIcons';
 
 export interface CropImageInfo {
@@ -21,56 +21,56 @@ export const CROP_HD_IMAGES: Record<string, CropImageInfo> = {
     alt: 'Ripe golden maize and corn cobs',
   },
   bajra: {
-    url: 'https://images.unsplash.com/photo-1509358271058-acd22cc93898?auto=format&fit=crop&w=600&q=80',
-    alt: 'Pearl millet (Bajra) grains and stalks',
+    url: '/crops/bajra.jpg',
+    alt: 'Pearl millet (Bajra) stalks with dense seed heads in farm field',
   },
   jowar: {
-    url: 'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?auto=format&fit=crop&w=600&q=80',
-    alt: 'Sorghum (Jowar) grains and ear heads',
+    url: '/crops/jowar.jpg',
+    alt: 'Sorghum (Jowar) crop ear heads with round ripe grains',
   },
   ragi: {
-    url: 'https://images.unsplash.com/photo-1509358271058-acd22cc93898?auto=format&fit=crop&w=600&q=80',
-    alt: 'Finger millet (Ragi) brown healthy grains',
+    url: '/crops/ragi.jpg',
+    alt: 'Finger millet (Ragi) finger panicles and reddish-brown grains',
   },
   chana: {
     url: 'https://images.unsplash.com/photo-1515543237350-b3eea1ec8082?auto=format&fit=crop&w=600&q=80',
     alt: 'Chickpeas (Chana / Bengal Gram) whole grains',
   },
   tur: {
-    url: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=600&q=80',
-    alt: 'Pigeon pea (Tur / Arhar dal) yellow pulses',
+    url: '/crops/tur.jpg',
+    alt: 'Pigeon pea (Tur / Arhar dal) golden yellow split pulses',
   },
   moong: {
-    url: 'https://images.unsplash.com/photo-1551462147-ff29053bfc14?auto=format&fit=crop&w=600&q=80',
-    alt: 'Green gram (Moong) whole organic beans',
+    url: '/crops/moong.jpg',
+    alt: 'Green gram (Moong dal) whole organic green beans',
   },
   urad: {
-    url: 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?auto=format&fit=crop&w=600&q=80',
-    alt: 'Black gram (Urad dal) whole beans',
+    url: '/crops/urad.jpg',
+    alt: 'Black gram (Urad dal) whole black pulse beans',
   },
   soybean: {
-    url: 'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?auto=format&fit=crop&w=600&q=80',
-    alt: 'Soybeans clean harvested agricultural seeds',
+    url: '/crops/soybean.jpg',
+    alt: 'Golden-yellow Soybeans clean harvested agricultural seeds',
   },
   mustard: {
-    url: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=600&q=80',
-    alt: 'Golden mustard seeds and blooming flowers',
+    url: '/crops/mustard.jpg',
+    alt: 'Blooming yellow mustard (Sarson) field and clean mustard seeds',
   },
   groundnut: {
-    url: 'https://images.unsplash.com/photo-1567894340315-735d7c361db0?auto=format&fit=crop&w=600&q=80',
-    alt: 'Fresh raw peanuts and groundnuts in shells',
+    url: '/crops/groundnut.jpg',
+    alt: 'Freshly harvested raw groundnuts (peanuts / moongphali) with kernels',
   },
   cotton: {
-    url: 'https://images.unsplash.com/photo-1595246140625-573b715d11dc?auto=format&fit=crop&w=600&q=80',
-    alt: 'Fluffy white raw cotton bolls on plant',
+    url: '/crops/cotton.jpg',
+    alt: 'Ripe fluffy white cotton bolls ready for harvest on plant',
   },
   sugarcane: {
-    url: 'https://images.unsplash.com/photo-1527842891421-42eec6e703ea?auto=format&fit=crop&w=600&q=80',
-    alt: 'Fresh green sugarcane stalks in lush field',
+    url: '/crops/sugarcane.jpg',
+    alt: 'Fresh thick juicy purple and green sugarcane stalks',
   },
   jute: {
-    url: 'https://images.unsplash.com/photo-1533038590840-1cde6e668a91?auto=format&fit=crop&w=600&q=80',
-    alt: 'Golden natural raw jute fibers and bundles',
+    url: '/crops/jute.jpg',
+    alt: 'Golden natural raw jute fibers and bundles drying',
   },
   onion: {
     url: 'https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?auto=format&fit=crop&w=600&q=80',
@@ -89,8 +89,8 @@ export const CROP_HD_IMAGES: Record<string, CropImageInfo> = {
     alt: 'Fresh raw turmeric root rhizomes and pure haldi',
   },
   ginger: {
-    url: 'https://images.unsplash.com/photo-1590779033100-9f60a05a013d?auto=format&fit=crop&w=600&q=80',
-    alt: 'Fresh organic aromatic ginger root',
+    url: '/crops/ginger.jpg',
+    alt: 'Freshly harvested organic raw ginger rhizomes (Adrak)',
   },
   cumin: {
     url: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=600&q=80',
@@ -109,8 +109,8 @@ export const CROP_HD_IMAGES: Record<string, CropImageInfo> = {
     alt: 'Farm fresh clean golden harvest potatoes',
   },
   green_peas: {
-    url: 'https://images.unsplash.com/photo-1587735243615-c03f25aaff15?auto=format&fit=crop&w=600&q=80',
-    alt: 'Fresh sweet green peas in pod',
+    url: '/crops/green_peas.jpg',
+    alt: 'Fresh plump sweet green peas in open pods (Matar)',
   },
   cauliflower: {
     url: 'https://images.unsplash.com/photo-1568584711075-3d021a7c3ca3?auto=format&fit=crop&w=600&q=80',
@@ -125,16 +125,16 @@ export const CROP_HD_IMAGES: Record<string, CropImageInfo> = {
     alt: 'Fresh ripe golden yellow banana bunch',
   },
   tea: {
-    url: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=600&q=80',
-    alt: 'Fresh lush green tea leaves plucked on plantation',
+    url: '/crops/tea.jpg',
+    alt: 'Fresh lush green tea plantation terraces and leaves',
   },
   coffee: {
     url: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80',
     alt: 'Fresh coffee beans and ripe coffee cherries',
   },
   coconut: {
-    url: 'https://images.unsplash.com/photo-1544378730-8b5104b18790?auto=format&fit=crop&w=600&q=80',
-    alt: 'Fresh organic whole coconuts and coconut water',
+    url: '/crops/coconut.jpg',
+    alt: 'Fresh whole green coconuts and brown coconut with kernel',
   },
 };
 
@@ -171,6 +171,11 @@ export const CropImage: React.FC<CropImageProps> = ({
   const imageInfo = CROP_HD_IMAGES[id];
   const src = imageInfo?.url;
   const alt = imageInfo?.alt || `${name || id} photograph`;
+
+  useEffect(() => {
+    setHasError(false);
+    setIsLoaded(false);
+  }, [id, src]);
 
   if (hasError || !src) {
     return (

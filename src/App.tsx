@@ -3,10 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { mockCrops } from './data/cropsData';
 import { CropData, Language, IndianState, ActivePage } from './types';
 import { INDIAN_STATES, detectStateFromCoordinates } from './data/locations';
+import { getMandisForStateAndCrop } from './data/mandisData';
 import { Navbar } from './components/Navbar';
 import { PageNavigation } from './components/PageNavigation';
 import { ActiveCropBar } from './components/ActiveCropBar';
@@ -35,7 +36,16 @@ export default function App() {
   const [isLocationModalOpen, setIsLocationModalOpen] = useState<boolean>(false);
   const [locationToast, setLocationToast] = useState<string | null>(null);
 
-  const selectedCrop = crops.find((c) => c.id === selectedCropId) || crops[0];
+  // Dynamically attach real mandis of the selected state (within 100 km radius)
+  const selectedCrop = useMemo(() => {
+    const raw = crops.find((c) => c.id === selectedCropId) || crops[0];
+    const dynamicMandis = getMandisForStateAndCrop(currentState, raw.id, raw.currentPrice);
+    return {
+      ...raw,
+      mandis: dynamicMandis,
+    };
+  }, [crops, selectedCropId, currentState]);
+
   const t = translations[language];
 
   // Auto-detect location & set regional language on initial mount
@@ -50,7 +60,7 @@ export default function App() {
           setCurrentState(matched);
           setLanguage(matched.language);
           setLocationToast(
-            `📍 Location detected: ${matched.name} (${matched.nativeName}). Language set to ${matched.language.toUpperCase()}`
+            `📍 GPS detected: ${matched.name} (${matched.nativeName}). Mandis within 100 km loaded.`
           );
           setTimeout(() => {
             setLocationToast(null);
@@ -75,10 +85,12 @@ export default function App() {
     if (autoUpdateLanguage) {
       setLanguage(state.language);
       setLocationToast(
-        `📍 Location changed to ${state.name}. Language updated to ${state.language.toUpperCase()}`
+        `📍 State set to ${state.name}. Displaying verified ${state.name} mandis within 100 km.`
       );
     } else {
-      setLocationToast(`📍 Location changed to ${state.name}.`);
+      setLocationToast(
+        `📍 State set to ${state.name}. Displaying verified ${state.name} mandis within 100 km.`
+      );
     }
     setTimeout(() => {
       setLocationToast(null);
@@ -233,6 +245,7 @@ export default function App() {
           <LogisticsComparison
             crop={selectedCrop}
             language={language}
+            currentState={currentState}
             isSunlightMode={isSunlightMode}
             onNavigateToDecision={() => setActivePage('decision')}
             onNavigateToWeather={() => setActivePage('weather')}

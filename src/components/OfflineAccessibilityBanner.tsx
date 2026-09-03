@@ -35,7 +35,7 @@ export const OfflineAccessibilityBanner: React.FC<OfflineAccessibilityBannerProp
   // Format SMS body for Indian farmer devices
   const smsBody = encodeURIComponent(
     `MandiMitra Alert for ${crop.name} (${crop.hindiName}):\n` +
-      `Highest Rate: Rs ${crop.currentPrice}/quintal at ${crop.mandis[0].name}.\n` +
+      `Highest Rate: Rs ${crop.currentPrice}/quintal at ${crop.mandis[0].name} (${crop.mandis[0].region}, ${crop.mandis[0].state}).\n` +
       `Verdict: ${crop.decision.actionTitle} - ${crop.decision.actionSubtitle}.\n` +
       `Helpline: 1800-889-2040 (Free Audio Call).`
   );

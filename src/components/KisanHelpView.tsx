@@ -49,7 +49,7 @@ export const KisanHelpView: React.FC<KisanHelpViewProps> = ({
   const shareText = encodeURIComponent(
     `🌾 *MandiMitra Mandi Rate Today* 🌾\n` +
       `Crop: *${crop.name}* (${regionalName})\n` +
-      `Highest Rate: *₹${crop.currentPrice}* / quintal (${crop.mandis[0].name})\n` +
+      `Highest Rate: *₹${crop.currentPrice}* / quintal (${crop.mandis[0].name}, ${crop.mandis[0].region}, ${crop.mandis[0].state})\n` +
       `Advisory: *${crop.decision.actionTitle}* - ${crop.decision.actionSubtitle}\n` +
       `Calculate real in-hand net cash after diesel: https://mandimitra.in`
   );

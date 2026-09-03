@@ -32,6 +32,8 @@ export interface VehicleOption {
 export interface MandiOption {
   id: string;
   name: string;
+  region?: string;
+  state?: string;
   location: string;
   distanceKm: number;
   ratePerQuintal: number;
@@ -40,6 +42,7 @@ export interface MandiOption {
   paymentTerms: string;
   crowdLevel: 'Low' | 'Moderate' | 'High';
   verifiedToday: boolean;
+  stateId?: string;
 }
 
 export type CropCategory =

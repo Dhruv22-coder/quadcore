@@ -29,6 +29,8 @@ import {
   RefreshCw,
   X,
   Radio,
+  Building2,
+  Navigation,
 } from 'lucide-react';
 import {
   AreaChart,
@@ -578,12 +580,34 @@ export const DecisionHeroCard: React.FC<DecisionHeroCardProps> = ({
 
           {/* Current Highest Mandi Rate Display */}
           <div className="mt-3 p-4 sm:p-5 rounded-xl bg-slate-50 border border-slate-200">
-            <div className="flex items-center justify-between gap-2 mb-1">
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
               <span className="text-[11px] sm:text-xs font-bold text-slate-500 uppercase tracking-wide">
                 {t.highestPriceToday}
               </span>
-              <span className="text-xs font-semibold text-slate-600 bg-white px-2 py-0.5 rounded-md border border-slate-200">
-                {topMandi.name}
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-xs font-black text-slate-900 bg-white px-2.5 py-1 rounded-md border border-slate-200 shadow-2xs">
+                  {topMandi.name}
+                </span>
+                <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                  {topMandi.distanceKm} km away (&le; 100 km)
+                </span>
+              </div>
+            </div>
+
+            {/* Mandi Region & State Badges */}
+            <div className="flex flex-wrap items-center gap-2 mb-3 text-xs">
+              <div className="inline-flex items-center gap-1 bg-white px-2.5 py-1 rounded-md border border-slate-200 text-slate-700 shadow-2xs">
+                <MapPin className="w-3 h-3 text-emerald-700 shrink-0" />
+                <span className="text-slate-400 font-medium">Region:</span>
+                <span className="font-bold text-slate-800">{topMandi.region || `${currentState.name} Region`}</span>
+              </div>
+              <div className="inline-flex items-center gap-1 bg-white px-2.5 py-1 rounded-md border border-slate-200 text-slate-700 shadow-2xs">
+                <Building2 className="w-3 h-3 text-emerald-700 shrink-0" />
+                <span className="text-slate-400 font-medium">State:</span>
+                <span className="font-bold text-slate-800">{topMandi.state || currentState.name}</span>
+              </div>
+              <span className="text-[10px] font-bold text-slate-600 bg-slate-200/80 px-2 py-0.5 rounded">
+                Same State Mandi
               </span>
             </div>
 
