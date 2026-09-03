@@ -43,9 +43,9 @@ export const NAV_TRANSLATIONS: Record<Language, NavMenuTranslations> = {
         desc: 'Compare real in-hand cash after diesel & transport costs',
       },
       weather: {
-        label: 'Weather & Storage',
+        label: 'Weather',
         shortLabel: 'Weather',
-        desc: 'Rain/heat risk alerts & scientific storage guidelines',
+        desc: 'Live weather conditions, forecasts & AI advisories',
       },
       help: {
         label: 'Kisan Helpline',
@@ -79,9 +79,9 @@ export const NAV_TRANSLATIONS: Record<Language, NavMenuTranslations> = {
         desc: 'किराया व डीजल काटकर हाथ में शुद्ध नकदी देखें',
       },
       weather: {
-        label: 'मौसम व भंडारण',
+        label: 'मौसम',
         shortLabel: 'मौसम',
-        desc: 'बारिश/धूप का अलर्ट व सुरक्षित वैज्ञानिक भंडारण',
+        desc: 'मौसम पूर्वानुमान, लाइव स्थितियां व AI किसान सलाह',
       },
       help: {
         label: 'किसान सहायता',
@@ -115,9 +115,9 @@ export const NAV_TRANSLATIONS: Record<Language, NavMenuTranslations> = {
         desc: 'वाहतूक आणि डिझेल खर्च वजा करून प्रत्यक्ष शिल्लक',
       },
       weather: {
-        label: 'हवामान व साठा',
+        label: 'हवामान',
         shortLabel: 'हवामान',
-        desc: 'पाऊस/उन्हाचा इशारा आणि सुरक्षित वैज्ञानिक साठवणूक',
+        desc: 'हवामान अंदाज, थेट परिस्थिती आणि AI शेतकरी सल्ला',
       },
       help: {
         label: 'शेतकरी मदत कक्ष',
@@ -151,9 +151,9 @@ export const NAV_TRANSLATIONS: Record<Language, NavMenuTranslations> = {
         desc: 'ભાડું અને ડીઝલ ખર્ચ બાદ કરી હાથમાં ચોખ્ખી રોકડ',
       },
       weather: {
-        label: 'હવામાન અને સંગ્રહ',
+        label: 'હવામાન',
         shortLabel: 'હવામાન',
-        desc: 'વરસાદ/ગરમીની ચેતવણી અને સુરક્ષિત ગોદામ સલાહ',
+        desc: 'લાઇવ હવામાન પરિસ્થિતિ અને AI ખેડૂત સલાહ',
       },
       help: {
         label: 'ખેડૂત સહાયતા',
@@ -187,9 +187,9 @@ export const NAV_TRANSLATIONS: Record<Language, NavMenuTranslations> = {
         desc: 'ਕਿਰਾਇਆ ਅਤੇ ਡੀਜ਼ਲ ਕੱਟ ਕੇ ਹੱਥ ਵਿੱਚ ਅਸਲ ਪੈਸੇ',
       },
       weather: {
-        label: 'ਮੌਸਮ ਅਤੇ ਭੰਡਾਰਨ',
+        label: 'ਮੌਸਮ',
         shortLabel: 'ਮੌਸਮ',
-        desc: 'ਮੀਂਹ/ਧੁੱਪ ਦਾ ਅਲਰਟ ਅਤੇ ਸੁਰੱਖਿਅਤ ਭੰਡਾਰਨ ਸਲਾਹ',
+        desc: 'ਲਾਈਵ ਮੌਸਮ ਹਾਲਾਤ ਅਤੇ AI ਕਿਸਾਨ ਸਲਾਹ',
       },
       help: {
         label: 'ਕਿਸਾਨ ਸਹਾਇਤਾ',
@@ -223,9 +223,9 @@ export const NAV_TRANSLATIONS: Record<Language, NavMenuTranslations> = {
         desc: 'পরিবহন ও জ্বালানি খরচ বাদ দিয়ে আসল লাভ হিসাব',
       },
       weather: {
-        label: 'আবহাওয়া ও সংরক্ষণ',
+        label: 'আবহাওয়া',
         shortLabel: 'আবহাওয়া',
-        desc: 'বৃষ্টি/রোদের সতর্কতা এবং নিরাপদ গুদামজাতকরণ',
+        desc: 'লাইভ আবহাওয়া পরিস্থিতি এবং AI কিষাণ পরামর্শ',
       },
       help: {
         label: 'কৃষক সহায়তা',
@@ -259,9 +259,9 @@ export const NAV_TRANSLATIONS: Record<Language, NavMenuTranslations> = {
         desc: 'போக்குவரத்து & டீசல் செலவு போக கையில் கிடைக்கும் தொகை',
       },
       weather: {
-        label: 'வானிலை & சேமிப்பு',
+        label: 'வானிலை',
         shortLabel: 'வானிலை',
-        desc: 'மழை/வெப்ப எச்சரிக்கை & அறிவியல் பூர்வ சேமிப்பு முறை',
+        desc: 'நேரலை வானிலை மற்றும் AI விவசாயி ஆலோசனை',
       },
       help: {
         label: 'விவசாயி உதவி',
@@ -295,9 +295,9 @@ export const NAV_TRANSLATIONS: Record<Language, NavMenuTranslations> = {
         desc: 'రవాణా & డీజిల్ ఖర్చులు పోను చేతికొచ్చే నికర నగదు',
       },
       weather: {
-        label: 'వాతావరణం & నిల్వ',
+        label: 'వాతావరణం',
         shortLabel: 'వాతావరణం',
-        desc: 'వర్షం/ఎండ హెచ్చరిక మరియు శాస్త్రీయ నిల్వ సలహా',
+        desc: 'ప్రత్యక్ష వాతావరణం మరియు AI కిసాన్ సలహాలు',
       },
       help: {
         label: 'రైతు సహాయవాణి',
@@ -331,9 +331,9 @@ export const NAV_TRANSLATIONS: Record<Language, NavMenuTranslations> = {
         desc: 'ಸಾರಿಗೆ ಮತ್ತು ಇಂಧನ ವೆಚ್ಚ ಕಳೆದು ಕೈಗೆ ಸಿಗುವ ನಗದು',
       },
       weather: {
-        label: 'ಹವಾಮಾನ & ಸಂಗ್ರಹಣೆ',
+        label: 'ಹವಾಮಾನ',
         shortLabel: 'ಹವಾಮಾನ',
-        desc: 'ಮಳೆ/ಬಿಸಿಲಿನ ಎಚ್ಚರಿಕೆ ಮತ್ತು ವೈಜ್ಞಾನಿಕ ದಾಸ್ತಾನು ಸಲಹೆ',
+        desc: 'ನೇರ ಹವಾಮಾನ ಮತ್ತು AI ಕಿಸಾನ್ ಸಲಹೆ',
       },
       help: {
         label: 'ರೈತ ಸಹಾಯವಾಣಿ',
@@ -367,9 +367,9 @@ export const NAV_TRANSLATIONS: Record<Language, NavMenuTranslations> = {
         desc: 'ഗതാഗത ചെലവ് കഴിഞ്ഞ് കൈയ്യിൽ കിട്ടുന്ന തുക താരതമ്യം ചെയ്യുക',
       },
       weather: {
-        label: 'കാലാവസ്ഥ & സംഭരണം',
+        label: 'കാലാവസ്ഥ',
         shortLabel: 'കാലാവസ്ഥ',
-        desc: 'മഴ/ചൂട് മുന്നറിയിപ്പും സുരക്ഷിത സംഭരണ നിർദ്ദേശവും',
+        desc: 'തത്സമയ കാലാവസ്ഥയും AI കിസാൻ നിർദ്ദേശങ്ങളും',
       },
       help: {
         label: 'കർഷക സഹായം',
@@ -403,9 +403,9 @@ export const NAV_TRANSLATIONS: Record<Language, NavMenuTranslations> = {
         desc: 'ଭଡ଼ା ଓ ତେଲ ଖର୍ଚ୍ଚ କାଟି ହାତକୁ ଆସୁଥିବା ଟଙ୍କା',
       },
       weather: {
-        label: 'ପାଣିପାଗ ଓ ସଂରକ୍ଷଣ',
+        label: 'ପାଣିପାଗ',
         shortLabel: 'ପାଣିପାଗ',
-        desc: 'ବର୍ଷା/ଖରା ସତର୍କତା ଓ ସୁରକ୍ଷିତ ଗୋଦାମ ସୂଚନା',
+        desc: 'ଲାଇଭ୍ ପାଣିପାଗ ଏବଂ AI କୃଷକ ପରାମର୍ଶ',
       },
       help: {
         label: 'କୃଷକ ସହାୟତା',
@@ -439,9 +439,9 @@ export const NAV_TRANSLATIONS: Record<Language, NavMenuTranslations> = {
         desc: 'পৰিবহণ খৰচ বাদ দি হাতলৈ অহা আচল নগদ',
       },
       weather: {
-        label: 'বতৰ আৰু সংৰক্ষণ',
+        label: 'বতৰ',
         shortLabel: 'বতৰ',
-        desc: 'বৰষুণ/ৰ\'দৰ সতৰ্কবাণী আৰু সংৰক্ষণৰ পৰামৰ্শ',
+        desc: 'লাইভ বতৰ আৰু AI কিষাণ পৰামৰ্শ',
       },
       help: {
         label: 'কৃষক সহায়',
@@ -475,9 +475,9 @@ export const NAV_TRANSLATIONS: Record<Language, NavMenuTranslations> = {
         desc: 'کرایہ اور ڈیزل نکال کر ہاتھ میں خالص رقم',
       },
       weather: {
-        label: 'موسم اور اسٹوریج',
+        label: 'موسم',
         shortLabel: 'موسم',
-        desc: 'بارش/گرمی کا الرٹ اور محفوظ اسٹوریج ہدایات',
+        desc: 'لائیو موسم اور AI کسان مشورہ',
       },
       help: {
         label: 'کسان ہیلپ لائن',

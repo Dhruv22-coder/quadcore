@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { CropData, Language, IndianState } from '../types';
 import { translations, formatINR, speakText, stopSpeaking } from '../lib/utils';
+import { NAV_TRANSLATIONS } from '../data/navigationTranslations';
+import { WEATHER_TRANSLATIONS } from '../data/weatherTranslations';
 import { CropImage } from '../data/cropImages';
 import {
   fetchLiveWeatherData,
@@ -22,7 +24,6 @@ import {
   Layers,
   Flame,
   ThermometerSun,
-  Sun,
   Warehouse,
   ShieldAlert,
   MapPin,
@@ -31,6 +32,8 @@ import {
   Radio,
   Building2,
   Navigation,
+  Users,
+  Truck,
 } from 'lucide-react';
 import {
   AreaChart,
@@ -47,8 +50,12 @@ interface DecisionHeroCardProps {
   language: Language;
   onPlayAudio: () => void;
   isAudioPlaying: boolean;
-  isDarkMode: boolean;
+  isDarkMode?: boolean;
+  isSunlightMode?: boolean;
   currentState?: IndianState;
+  harvestQuantity?: number;
+  onQuantityChange?: (qty: number) => void;
+  onOpenPoolingModal?: () => void;
   onNavigateToCrops?: () => void;
   onNavigateToProfit?: () => void;
   onNavigateToWeather?: () => void;
@@ -59,8 +66,12 @@ export const DecisionHeroCard: React.FC<DecisionHeroCardProps> = ({
   language,
   onPlayAudio,
   isAudioPlaying,
-  isDarkMode,
+  isDarkMode = false,
+  isSunlightMode = false,
   currentState,
+  harvestQuantity = 12,
+  onQuantityChange,
+  onOpenPoolingModal,
   onNavigateToCrops,
   onNavigateToProfit,
   onNavigateToWeather,
@@ -75,6 +86,8 @@ export const DecisionHeroCard: React.FC<DecisionHeroCardProps> = ({
   const [locationSource, setLocationSource] = useState<'gps' | 'regional'>('regional');
 
   const t = translations[language];
+  const navTexts = NAV_TRANSLATIONS[language] || NAV_TRANSLATIONS.en;
+  const wt = WEATHER_TRANSLATIONS[language] || WEATHER_TRANSLATIONS.en;
 
   const signal = crop.decision.signal;
   const isGreen = signal === 'green';
@@ -228,16 +241,16 @@ export const DecisionHeroCard: React.FC<DecisionHeroCardProps> = ({
             {isRed && <AlertTriangle className="w-3.5 h-3.5 stroke-[2.5]" />}
             <span>
               {isGreen
-                ? 'Signal: SELL TODAY'
+                ? t.sellTodayVerdict
                 : isAmber
-                ? 'Signal: WAIT 2-3 DAYS'
-                : 'Signal: SELL IMMEDIATELY'}
+                ? t.waitVerdict
+                : t.riskVerdict}
             </span>
           </div>
 
           <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-md border border-slate-200">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
-            {crop.decision.confidenceScore}% Confidence
+            {crop.decision.confidenceScore}% {t.confidenceScore || 'Confidence'}
           </span>
 
           {/* Context-Aware Extreme Weather Risk Badge */}
@@ -270,7 +283,6 @@ export const DecisionHeroCard: React.FC<DecisionHeroCardProps> = ({
           ) : (
             /* Normal Weather Info Pill */
             <div className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 bg-slate-50 px-2 py-1 rounded-md border border-slate-200">
-              <Sun className="w-3.5 h-3.5 text-amber-500 shrink-0" />
               <span>
                 {isLoadingWeather
                   ? 'Checking weather...'
@@ -782,7 +794,7 @@ export const DecisionHeroCard: React.FC<DecisionHeroCardProps> = ({
                     tickLine={false}
                     axisLine={false}
                     domain={['dataMin - 100', 'dataMax + 100']}
-                    tickFormatter={(val) => `₹${val}`}
+                    tickFormatter={(val) => formatINR(val)}
                   />
                   <Tooltip
                     content={({ active, payload }) => {
@@ -792,7 +804,7 @@ export const DecisionHeroCard: React.FC<DecisionHeroCardProps> = ({
                           <div className="bg-slate-900 text-white px-2.5 py-1.5 rounded-lg text-xs shadow-md border border-slate-800">
                             <p className="font-semibold text-slate-400 text-[11px]">{item.day}</p>
                             <p className="text-sm font-bold text-white tabular-nums">
-                              ₹{item.price.toLocaleString('en-IN')}{' '}
+                              {formatINR(item.price)}{' '}
                               <span className="text-[10px] text-slate-400 font-normal">/ qtl</span>
                             </p>
                             {item.projected && (
@@ -835,6 +847,68 @@ export const DecisionHeroCard: React.FC<DecisionHeroCardProps> = ({
           </div>
         )}
 
+        {/* Harvest Quantity Tweak & Background Sync Strip */}
+        <div className="mt-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-700">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-black text-slate-900 dark:text-white">
+                  {t.yourHarvestQuantity || 'Your Expected Harvest Quantity'}:
+                </span>
+                <span className="text-xs font-black text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800 tabular-nums">
+                  {harvestQuantity} Quintals ({harvestQuantity * 100} kg)
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                Automatically saved to your Kisan Firestore record for net profit calculation.
+              </p>
+            </div>
+
+            {/* Quick buttons */}
+            {onQuantityChange && (
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Quick:</span>
+                {[8, 12, 15, 30, 50].map((qty) => (
+                  <button
+                    key={qty}
+                    type="button"
+                    onClick={() => onQuantityChange(qty)}
+                    className={`min-h-[30px] px-2.5 rounded-md text-xs font-bold transition-all border cursor-pointer ${
+                      harvestQuantity === qty
+                        ? 'bg-emerald-700 text-white border-emerald-700 shadow-2xs'
+                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100'
+                    }`}
+                  >
+                    {qty} qtl
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Conditional Banner for Small-Yield (< 15 Quintals) */}
+          {harvestQuantity < 15 && (
+            <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 bg-amber-50/80 dark:bg-amber-950/30 p-3 rounded-lg border border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-200">
+              <div className="flex items-center gap-2 text-xs font-medium">
+                <Users className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                <span>
+                  Small harvest (&lt; 15 Qtl): Solo truck freight may take 25-35% of profit. Pool a truck with nearby {crop.name} farmers to save ₹80-120/qtl!
+                </span>
+              </div>
+              {onOpenPoolingModal && (
+                <button
+                  type="button"
+                  onClick={onOpenPoolingModal}
+                  className="px-3 py-1.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs rounded-lg shadow-2xs transition-colors cursor-pointer shrink-0 flex items-center gap-1"
+                >
+                  <Users className="w-3.5 h-3.5" />
+                  <span>Pool Truckload</span>
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+
         {/* Page 2 Navigation Buttons */}
         {(onNavigateToCrops || onNavigateToProfit) && (
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-slate-200 mt-2">
@@ -844,7 +918,7 @@ export const DecisionHeroCard: React.FC<DecisionHeroCardProps> = ({
                 onClick={onNavigateToCrops}
                 className="w-full sm:w-auto min-h-[48px] px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-800 font-bold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs"
               >
-                <span>⬅️ 1. फसल बदलें (Choose Crop)</span>
+                <span>⬅️ 1. {navTexts.navItems.crops.label}</span>
               </button>
             )}
 
@@ -855,7 +929,7 @@ export const DecisionHeroCard: React.FC<DecisionHeroCardProps> = ({
                 onClick={onNavigateToProfit}
                 className="w-full sm:w-auto min-h-[48px] px-5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-extrabold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md"
               >
-                <span>3. मंडी मुनाफा जांचें (Calculate Mandi Net Cash) ➡️</span>
+                <span>3. {navTexts.navItems.profit.label} ➡️</span>
               </button>
             )}
           </div>

@@ -1,0 +1,292 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Farmer profile preferences including state, language, and display settings",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "User ID matching Firebase Auth UID",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Farmer's name or display name",
+          "maxLength": 100
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Email address of the authenticated farmer",
+          "maxLength": 150
+        },
+        "state": {
+          "type": "string",
+          "description": "Selected agricultural state (e.g. maharashtra, punjab)",
+          "maxLength": 50
+        },
+        "language": {
+          "type": "string",
+          "description": "Selected UI dialect/language code",
+          "maxLength": 10
+        },
+        "isSunlightMode": {
+          "type": "boolean",
+          "description": "Whether outdoor high-contrast sunlight mode is active"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when profile was last updated"
+        }
+      },
+      "required": ["id", "email", "state", "language", "updatedAt"]
+    },
+    "WatchedCrop": {
+      "title": "WatchedCrop",
+      "description": "Farmer's pinned crop with price target monitoring",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the watched crop item",
+          "maxLength": 50
+        },
+        "cropId": {
+          "type": "string",
+          "description": "Identifier of the crop",
+          "maxLength": 50
+        },
+        "cropName": {
+          "type": "string",
+          "description": "Display name of the crop",
+          "maxLength": 100
+        },
+        "targetMinPrice": {
+          "type": "number",
+          "description": "Desired minimum selling rate per quintal"
+        },
+        "targetMaxPrice": {
+          "type": "number",
+          "description": "Target peak selling rate per quintal"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Optional notes or harvest timeframe",
+          "maxLength": 500
+        },
+        "userId": {
+          "type": "string",
+          "description": "UID of the owning farmer",
+          "maxLength": 128
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last modified timestamp"
+        }
+      },
+      "required": ["id", "cropId", "cropName", "userId", "updatedAt"]
+    },
+    "MandiSale": {
+      "title": "MandiSale",
+      "description": "Recorded mandi transaction or harvest sale entry",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique sale record identifier",
+          "maxLength": 64
+        },
+        "userId": {
+          "type": "string",
+          "description": "UID of the farmer who logged the sale",
+          "maxLength": 128
+        },
+        "cropId": {
+          "type": "string",
+          "description": "Crop ID",
+          "maxLength": 50
+        },
+        "cropName": {
+          "type": "string",
+          "description": "Crop Name",
+          "maxLength": 100
+        },
+        "mandiName": {
+          "type": "string",
+          "description": "Destination APMC market name",
+          "maxLength": 100
+        },
+        "quantityQuintals": {
+          "type": "number",
+          "description": "Quantity sold in quintals"
+        },
+        "ratePerQuintal": {
+          "type": "number",
+          "description": "Realized rate per quintal (INR)"
+        },
+        "transportCost": {
+          "type": "number",
+          "description": "Transport and logistics expense (INR)"
+        },
+        "netProfit": {
+          "type": "number",
+          "description": "Calculated net revenue after transport"
+        },
+        "saleDate": {
+          "type": "string",
+          "description": "Date of transaction (YYYY-MM-DD)",
+          "maxLength": 30
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation timestamp"
+        }
+      },
+      "required": ["id", "userId", "cropId", "cropName", "mandiName", "quantityQuintals", "ratePerQuintal", "saleDate", "createdAt"]
+    },
+    "CommunityTip": {
+      "title": "CommunityTip",
+      "description": "Shared market intelligence or local logistics update between farmers",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique tip ID",
+          "maxLength": 64
+        },
+        "authorId": {
+          "type": "string",
+          "description": "UID of the submitting farmer",
+          "maxLength": 128
+        },
+        "authorName": {
+          "type": "string",
+          "description": "Name of the farmer",
+          "maxLength": 100
+        },
+        "cropName": {
+          "type": "string",
+          "description": "Associated crop or all",
+          "maxLength": 100
+        },
+        "mandiName": {
+          "type": "string",
+          "description": "Associated mandi or market region",
+          "maxLength": 100
+        },
+        "tipText": {
+          "type": "string",
+          "description": "Advice, rate heads-up, or storage condition alert",
+          "maxLength": 500
+        },
+        "upvotes": {
+          "type": "number",
+          "description": "Count of helpful upvotes"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when posted"
+        }
+      },
+      "required": ["id", "authorId", "authorName", "cropName", "tipText", "createdAt"]
+    },
+    "FarmerPool": {
+      "title": "FarmerPool",
+      "description": "Shared load pooling request for farmers with small yields (<15 quintals)",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the pooling record",
+          "maxLength": 64
+        },
+        "userId": {
+          "type": "string",
+          "description": "UID of the farmer",
+          "maxLength": 128
+        },
+        "farmerName": {
+          "type": "string",
+          "description": "Farmer's contact name",
+          "maxLength": 100
+        },
+        "phone": {
+          "type": "string",
+          "description": "Farmer's phone number",
+          "maxLength": 25
+        },
+        "cropId": {
+          "type": "string",
+          "description": "Selected crop ID",
+          "maxLength": 50
+        },
+        "cropName": {
+          "type": "string",
+          "description": "Selected crop name",
+          "maxLength": 100
+        },
+        "quantity": {
+          "type": "number",
+          "description": "Harvest yield quantity in quintals"
+        },
+        "unit": {
+          "type": "string",
+          "description": "Unit of measurement (quintals)",
+          "maxLength": 20
+        },
+        "lat": {
+          "type": "number",
+          "description": "Farmer GPS latitude"
+        },
+        "lng": {
+          "type": "number",
+          "description": "Farmer GPS longitude"
+        },
+        "village": {
+          "type": "string",
+          "description": "Village or locality name",
+          "maxLength": 100
+        },
+        "state": {
+          "type": "string",
+          "description": "State identifier",
+          "maxLength": 50
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when pooling entry was last updated"
+        }
+      },
+      "required": ["id", "userId", "farmerName", "cropId", "cropName", "quantity", "unit", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Farmer profile containing language, state, active crop sync, and UI preferences"
+    },
+    "/users/{userId}/watchlist/{cropId}": {
+      "schema": "WatchedCrop",
+      "description": "Watched crops for price tracking and alerts"
+    },
+    "/users/{userId}/sales/{saleId}": {
+      "schema": "MandiSale",
+      "description": "Farmer crop sales records with quantities, mandi rates, and net profits"
+    },
+    "/communityTips/{tipId}": {
+      "schema": "CommunityTip",
+      "description": "Crowdsourced farmer market tips and local mandi feedback"
+    },
+    "/farmerPools/{poolId}": {
+      "schema": "FarmerPool",
+      "description": "Active pooling and shared logistics registry for small-yield farmers"
+    }
+  }
+}

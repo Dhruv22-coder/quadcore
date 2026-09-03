@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
 import { CropData, Language } from '../types';
-import { formatINR } from '../lib/utils';
+import { translations, formatINR } from '../lib/utils';
 import {
   PhoneCall,
   MessageSquare,
   Share2,
   Smartphone,
-  Moon,
-  Sun,
   ShieldCheck,
   CheckCircle,
   HelpCircle,
@@ -38,6 +36,7 @@ export const KisanHelpView: React.FC<KisanHelpViewProps> = ({
   onNavigateToCrops,
 }) => {
   const [copiedText, setCopiedText] = useState<string | null>(null);
+  const t = translations[language];
 
   const regionalName = crop.regionalNames?.[language] || crop.hindiName;
 
@@ -61,7 +60,7 @@ export const KisanHelpView: React.FC<KisanHelpViewProps> = ({
 
   const handleCopyUssd = () => {
     navigator.clipboard.writeText('*99*7762#');
-    setCopiedText('USSD code copied! Dial *99*7762# on any phone.');
+    setCopiedText(t.smsPrefilledNotice || 'USSD code copied! Dial *99*7762# on any phone.');
     setTimeout(() => setCopiedText(null), 4000);
   };
 
@@ -100,10 +99,10 @@ export const KisanHelpView: React.FC<KisanHelpViewProps> = ({
                 <PhoneCall className="w-5 h-5 text-emerald-700" />
               </div>
               <h3 className="text-base font-black text-emerald-950 mt-2">
-                Kisan Call Center (किसान कॉल सेंटर)
+                {t.kisanCallCenterTitle}
               </h3>
               <p className="text-xs text-emerald-900/90 font-medium mt-1 leading-snug">
-                Connect with agricultural scientists in 22 regional languages. Open 6:00 AM – 10:00 PM every day.
+                {t.kisanCallCenterDesc}
               </p>
             </div>
 
@@ -112,7 +111,7 @@ export const KisanHelpView: React.FC<KisanHelpViewProps> = ({
               className="mt-4 min-h-[44px] px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-black text-sm flex items-center justify-center gap-2 transition-transform active:scale-95 shadow-xs"
             >
               <PhoneCall className="w-4 h-4" />
-              <span>Call 1800-180-1551 (मुफ्त कॉल)</span>
+              <span>{t.callFreeBtn}</span>
             </a>
           </div>
 
@@ -129,7 +128,11 @@ export const KisanHelpView: React.FC<KisanHelpViewProps> = ({
                 MandiMitra Audio Bhav Line
               </h3>
               <p className="text-xs text-slate-300 font-medium mt-1 leading-snug">
-                Give a missed call or call directly to hear today’s {crop.name} APMC rates read out in your regional dialect.
+                {language === 'hi'
+                  ? `अपनी क्षेत्रीय भाषा में आज का ${crop.name} मंडी भाव सुनने के लिए मिस्ड कॉल दें या सीधे कॉल करें।`
+                  : language === 'mr'
+                  ? `आपल्या स्थानिक भाषेत आजचा ${crop.name} बाजारभाव ऐकण्यासाठी मिस्ड कॉल द्या किंवा थेट कॉल करा.`
+                  : `Give a missed call or call directly to hear today’s ${crop.name} APMC rates read out in your regional dialect.`}
               </p>
             </div>
 
@@ -148,34 +151,42 @@ export const KisanHelpView: React.FC<KisanHelpViewProps> = ({
       <section className="bg-white rounded-2xl p-4 sm:p-6 border border-slate-200 shadow-2xs space-y-4">
         <h2 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
           <MessageSquare className="w-5 h-5 text-emerald-700" />
-          <span>Share & Save Mandi Rates for Low Connectivity</span>
+          <span>{t.offlineBannerTitle}</span>
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           {/* SMS for Keypad phones */}
           <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
             <span className="text-xs font-bold text-slate-500 uppercase block">
-              Feature & Keypad Phones (बिना इंटरनेट)
+              {t.lowInternetBadge}
             </span>
             <p className="text-xs text-slate-700 font-medium mt-1">
-              Send today’s {crop.name} price summary as a standard SMS to your own phone or another farmer.
+              {language === 'hi'
+                ? `आज का ${crop.name} भाव सारांश अपने फोन या अन्य किसान को साधारण एसएमएस के रूप में भेजें।`
+                : language === 'mr'
+                ? `आजचा ${crop.name} भाव सारांश आपल्या फोनवर किंवा इतर शेतकऱ्याला सामान्य एसएमएसद्वारे पाठवा.`
+                : `Send today’s ${crop.name} price summary as a standard SMS to your own phone or another farmer.`}
             </p>
             <a
               href={`sms:?body=${smsBody}`}
               className="mt-3 inline-flex items-center justify-center gap-2 w-full min-h-[42px] px-3.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold transition-all"
             >
               <MessageSquare className="w-4 h-4" />
-              <span>Send SMS (एसएमएस भेजें)</span>
+              <span>{t.sendSmsBtn}</span>
             </a>
           </div>
 
           {/* WhatsApp Farmer Group Share */}
           <div className="p-3.5 rounded-xl bg-emerald-50/50 border border-emerald-200">
             <span className="text-xs font-bold text-emerald-800 uppercase block">
-              Farmer WhatsApp Groups (व्हाट्सएप ग्रुप)
+              WhatsApp ({t.shareWithKisanGroup})
             </span>
             <p className="text-xs text-slate-700 font-medium mt-1">
-              Share the mandi rates and in-hand net cash analysis with your village farmers cooperative.
+              {language === 'hi'
+                ? `मंडी भाव और असली मुनाफा विश्लेषण अपने गांव की किसान सहकारी संस्था के साथ साझा करें।`
+                : language === 'mr'
+                ? `बाजारभाव आणि प्रत्यक्ष नफा विश्लेषण आपल्या गावातील शेतकरी गटासोबत शेअर करा.`
+                : `Share the mandi rates and in-hand net cash analysis with your village farmers cooperative.`}
             </p>
             <a
               href={`https://api.whatsapp.com/send?text=${shareText}`}
@@ -184,7 +195,7 @@ export const KisanHelpView: React.FC<KisanHelpViewProps> = ({
               className="mt-3 inline-flex items-center justify-center gap-2 w-full min-h-[42px] px-3.5 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-black transition-all"
             >
               <Share2 className="w-4 h-4" />
-              <span>Share to WhatsApp Group</span>
+              <span>{t.shareWithKisanGroup}</span>
             </a>
           </div>
         </div>
@@ -193,7 +204,7 @@ export const KisanHelpView: React.FC<KisanHelpViewProps> = ({
         <div className="p-3.5 rounded-xl bg-amber-50/80 border border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900 uppercase">
-              <span>Offline USSD Service (बिना इंटरनेट कोड)</span>
+              <span>Offline USSD Service (*99*7762#)</span>
             </div>
             <p className="text-xs text-amber-950 font-medium mt-0.5">
               Dial <strong className="font-mono font-bold">*99*7762#</strong> on any 2G phone to receive instant APMC rate via SMS flash.
@@ -210,18 +221,13 @@ export const KisanHelpView: React.FC<KisanHelpViewProps> = ({
 
         {/* Sunlight Mode Helper */}
         <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
-              <Sun className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="text-xs font-black text-slate-900 block">
-                Outdoor Sunlight Mode (तेज धूप मोड)
-              </span>
-              <span className="text-xs text-slate-600 font-medium">
-                Increases text contrast and black borders for easy reading under direct farm sunlight.
-              </span>
-            </div>
+          <div>
+            <span className="text-xs font-black text-slate-900 block">
+              {t.outdoorSunlightTitle}
+            </span>
+            <span className="text-xs text-slate-600 font-medium">
+              {t.sunlightModeDesc}
+            </span>
           </div>
           <button
             type="button"
@@ -232,7 +238,7 @@ export const KisanHelpView: React.FC<KisanHelpViewProps> = ({
                 : 'bg-white text-slate-800 border-slate-300 hover:bg-slate-100'
             }`}
           >
-            {isSunlightMode ? '☀️ High Contrast ON' : 'Turn Sunlight Mode ON'}
+            {isSunlightMode ? t.turnSunlightOff : t.turnSunlightOn}
           </button>
         </div>
       </section>
@@ -245,7 +251,7 @@ export const KisanHelpView: React.FC<KisanHelpViewProps> = ({
           className="w-full sm:w-auto min-h-[48px] px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-800 font-bold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>⬅️ 4. मौसम व भंडारण (Back to Weather)</span>
+          <span>{t.proceedToWeather}</span>
         </button>
 
         <button
@@ -254,7 +260,7 @@ export const KisanHelpView: React.FC<KisanHelpViewProps> = ({
           className="w-full sm:w-auto min-h-[48px] px-5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-extrabold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md"
         >
           <Wheat className="w-4 h-4" />
-          <span>1. दूसरी फसल चुनें (Check Another Crop)</span>
+          <span>{t.checkAnotherCrop}</span>
         </button>
       </div>
     </div>

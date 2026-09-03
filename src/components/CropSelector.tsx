@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { CropData, Language } from '../types';
 import { CropIcon } from './CropIcons';
 import { CropImage } from '../data/cropImages';
-import { translations } from '../lib/utils';
+import { translations, formatINR } from '../lib/utils';
 import { NAV_TRANSLATIONS } from '../data/navigationTranslations';
 import {
   Mic,
@@ -27,7 +27,7 @@ interface CropSelectorProps {
   selectedCropId: string;
   onSelectCrop: (cropId: string) => void;
   language: Language;
-  onOpenVoiceSearch: () => void;
+  onOpenVoiceSearch?: () => void;
   isDarkMode: boolean;
   onProceedToDecision?: () => void;
 }
@@ -224,6 +224,13 @@ export const CropSelector: React.FC<CropSelectorProps> = ({
     setSortBy('default');
   };
 
+  const handleCropCardClick = (cropId: string) => {
+    onSelectCrop(cropId);
+    if (onProceedToDecision) {
+      onProceedToDecision();
+    }
+  };
+
   return (
     <section className="relative">
       {/* Header & Subtitle */}
@@ -244,7 +251,7 @@ export const CropSelector: React.FC<CropSelectorProps> = ({
                 title="Reset all filters"
               >
                 <RotateCcw className="w-3 h-3" />
-                <span>Reset Filters</span>
+                <span>{t.resetFilters}</span>
               </button>
             )}
           </div>
@@ -262,7 +269,7 @@ export const CropSelector: React.FC<CropSelectorProps> = ({
               type="text"
               value={filterText}
               onChange={(e) => setFilterText(e.target.value)}
-              placeholder="Search crop / फसल खोजें (e.g., Pyaz, Gehu, Chana)..."
+              placeholder={t.searchPlaceholder}
               className="w-full pl-8.5 pr-8 py-2 bg-white rounded-lg border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-hidden focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 shadow-2xs font-medium"
             />
             {filterText && (
@@ -553,7 +560,7 @@ export const CropSelector: React.FC<CropSelectorProps> = ({
               key={crop.id}
               id={`crop-card-${crop.id}`}
               type="button"
-              onClick={() => onSelectCrop(crop.id)}
+              onClick={() => handleCropCardClick(crop.id)}
               className={`group relative flex flex-col justify-between rounded-xl sm:rounded-2xl overflow-hidden transition-all duration-200 cursor-pointer select-none text-left active:scale-[0.98] ${
                 isSelected
                   ? 'bg-white dark:bg-slate-800 ring-2.5 ring-emerald-600 border-2 border-emerald-600 shadow-md ring-offset-2 ring-offset-white dark:ring-offset-slate-900'
@@ -606,7 +613,7 @@ export const CropSelector: React.FC<CropSelectorProps> = ({
                 <div className="absolute bottom-2 left-2 right-2 flex items-baseline justify-between pointer-events-none">
                   <div className="flex items-baseline gap-1 px-2 py-0.5 rounded-md bg-slate-950/80 backdrop-blur-xs text-white">
                     <span className="text-xs sm:text-sm font-black tabular-nums">
-                      ₹{crop.currentPrice.toLocaleString('en-IN')}
+                      {formatINR(crop.currentPrice)}
                     </span>
                     <span className="text-[9px] text-slate-300 font-semibold">/qtl</span>
                   </div>
@@ -716,7 +723,7 @@ export const CropSelector: React.FC<CropSelectorProps> = ({
             </div>
             <div>
               <span className="text-[11px] font-black text-emerald-900 uppercase tracking-wide">
-                Fasal Chuni Gayi (फसल चुनी गई):
+                {t.cropSelectedBanner}:
               </span>
               <div className="text-sm sm:text-base font-black text-slate-900 leading-tight">
                 {crops.find((c) => c.id === selectedCropId)?.name || 'Crop'} (
@@ -738,27 +745,6 @@ export const CropSelector: React.FC<CropSelectorProps> = ({
           </button>
         </div>
       )}
-
-      {/* Floating WhatsApp-Style Voice Search Microphone Button */}
-      <button
-        id="floating-voice-search-btn"
-        onClick={onOpenVoiceSearch}
-        title={t.voiceSearchPrompt}
-        className="fixed bottom-20 sm:bottom-8 right-4 sm:right-8 z-40 flex items-center gap-2 bg-emerald-700 hover:bg-emerald-800 active:scale-95 text-white pl-3 pr-4 py-2.5 sm:py-3 rounded-full shadow-lg border border-white/20 transition-all select-none cursor-pointer"
-        aria-label="Voice Search"
-      >
-        <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
-          <Mic className="w-4 h-4 text-white stroke-[2.5]" />
-        </div>
-        <div className="text-left">
-          <span className="block text-[10px] font-bold uppercase tracking-wider text-emerald-100 leading-none">
-            {t.speakCropName || 'Bol Kar Khojein'}
-          </span>
-          <span className="text-xs sm:text-sm font-extrabold tracking-tight leading-none text-white">
-            {t.voiceSearch || 'Voice Search'}
-          </span>
-        </div>
-      </button>
     </section>
   );
 };

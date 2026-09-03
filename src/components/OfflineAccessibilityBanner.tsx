@@ -62,14 +62,18 @@ export const OfflineAccessibilityBanner: React.FC<OfflineAccessibilityBannerProp
         <div className="max-w-xl">
           <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-semibold bg-slate-800 text-emerald-400 border border-slate-700 mb-2">
             <WifiOff className="w-3 h-3" />
-            <span>Low Internet & Keypad Phone Accessibility</span>
+            <span>{t.lowInternetBadge}</span>
           </div>
 
           <h3 className="text-base sm:text-lg font-bold tracking-tight text-white">
             {t.offlineBannerTitle}
           </h3>
           <p className="text-xs sm:text-sm text-slate-300 font-normal mt-0.5 leading-relaxed">
-            Get today’s {crop.name} rate and advisory delivered straight to any phone via SMS, free automated voice missed call, or WhatsApp.
+            {language === 'hi'
+              ? `आज का ${crop.name} (${crop.hindiName}) भाव और सलाह सीधे किसी भी फोन पर एसएमएस, मुफ्त मिस्ड कॉल या व्हाट्सएप से प्राप्त करें।`
+              : language === 'mr'
+              ? `आजचा ${crop.name} दर आणि सल्ला थेट कोणत्याही फोनवर एसएमएस, मोफत मिस्ड कॉल किंवा व्हॉट्सअॅपद्वारे मिळवा.`
+              : `Get today’s ${crop.name} rate and advisory delivered straight to any phone via SMS, free automated voice missed call, or WhatsApp.`}
           </p>
 
           {/* Toll Free Missed Call Pill */}
@@ -83,7 +87,7 @@ export const OfflineAccessibilityBanner: React.FC<OfflineAccessibilityBannerProp
                   {t.missedCallTitle}
                 </span>
                 <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800/80 px-1.5 py-0.2 rounded font-semibold">
-                  Toll-Free
+                  {t.tollFree}
                 </span>
               </div>
               <a
@@ -144,14 +148,14 @@ export const OfflineAccessibilityBanner: React.FC<OfflineAccessibilityBannerProp
             className="min-h-[44px] px-3.5 py-2 rounded-lg bg-emerald-800 hover:bg-emerald-700 text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-95"
           >
             <Share2 className="w-4 h-4" />
-            <span>Share with Kisan Group</span>
+            <span>{t.shareWithKisanGroup}</span>
           </a>
         </div>
       </div>
 
       {smsSentNotice && (
         <div className="mt-2.5 text-center text-xs text-emerald-400 font-medium">
-          ✓ Opened SMS app. Rates and advisory pre-filled for sending!
+          {t.smsPrefilledNotice}
         </div>
       )}
     </section>

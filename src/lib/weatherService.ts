@@ -15,6 +15,7 @@ export interface WeatherData {
   maxTemperature: number;
   minTemperature: number;
   humidity?: number;
+  windSpeed?: number; // in km/h
   precipitationSum: number; // in mm
   precipitationProbability: number; // percentage
   weatherCode: number;
@@ -81,7 +82,7 @@ export async function fetchLiveWeatherData(
       4
     )}&longitude=${lng.toFixed(
       4
-    )}&current=temperature_2m,relative_humidity_2m,weather_code,precipitation&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max&timezone=auto`;
+    )}&current=temperature_2m,relative_humidity_2m,weather_code,precipitation,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max&timezone=auto`;
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 6000);
@@ -104,6 +105,7 @@ export async function fetchLiveWeatherData(
     const rainProb = Math.round(daily.precipitation_probability_max?.[0] ?? 15);
     const code = current.weather_code ?? (daily.weather_code?.[0] ?? 0);
     const humidity = current.relative_humidity_2m ?? 55;
+    const windSpeed = Math.round(current.wind_speed_10m ?? 14);
 
     // Determine Risk:
     // Rain Risk: Rainfall >= 12mm OR rain prob >= 60% with rain code, or storm codes
@@ -134,6 +136,7 @@ export async function fetchLiveWeatherData(
       maxTemperature: maxTemp,
       minTemperature: minTemp,
       humidity,
+      windSpeed,
       precipitationSum: rainSum,
       precipitationProbability: rainProb,
       weatherCode: code,
@@ -156,6 +159,7 @@ export async function fetchLiveWeatherData(
       maxTemperature: 35,
       minTemperature: 24,
       humidity: 50,
+      windSpeed: 12,
       precipitationSum: 0,
       precipitationProbability: 10,
       weatherCode: 1,
@@ -190,6 +194,7 @@ export function getSimulatedWeatherData(
       maxTemperature: 27,
       minTemperature: 22,
       humidity: 92,
+      windSpeed: 28,
       precipitationSum: 42.5,
       precipitationProbability: 88,
       weatherCode: 65, // Heavy rain
@@ -212,6 +217,7 @@ export function getSimulatedWeatherData(
       maxTemperature: 43.5,
       minTemperature: 29,
       humidity: 28,
+      windSpeed: 16,
       precipitationSum: 0,
       precipitationProbability: 5,
       weatherCode: 0, // Clear sky
@@ -234,6 +240,7 @@ export function getSimulatedWeatherData(
     maxTemperature: 34,
     minTemperature: 23,
     humidity: 52,
+    windSpeed: 12,
     precipitationSum: 1.2,
     precipitationProbability: 15,
     weatherCode: 1,

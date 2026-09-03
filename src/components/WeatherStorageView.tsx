@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { CropData, Language, IndianState } from '../types';
-import { formatINR, speakText, stopSpeaking } from '../lib/utils';
+import { translations, speakText, stopSpeaking } from '../lib/utils';
+import { WEATHER_TRANSLATIONS } from '../data/weatherTranslations';
 import { CropImage } from '../data/cropImages';
 import {
   fetchLiveWeatherData,
@@ -8,30 +9,32 @@ import {
   getContextAwareStorageSuggestion,
   WeatherData,
 } from '../lib/weatherService';
+import { AIWeatherAdvisoryCard } from './AIWeatherAdvisoryCard';
+import { WeatherChatbot } from './WeatherChatbot';
 import {
   CloudRain,
   Flame,
-  Sun,
   Warehouse,
-  ShieldAlert,
   Volume2,
+  VolumeX,
   MapPin,
-  Sparkles,
-  CheckCircle2,
-  AlertTriangle,
-  Radio,
   ArrowRight,
   ArrowLeft,
   Thermometer,
   Droplets,
   Wind,
+  CheckCircle2,
+  AlertTriangle,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 
 interface WeatherStorageViewProps {
   crop: CropData;
   language: Language;
   currentState?: IndianState;
-  isDarkMode: boolean;
+  isSunlightMode?: boolean;
+  isDarkMode?: boolean;
   onNavigateToProfit: () => void;
   onNavigateToHelp: () => void;
 }
@@ -40,17 +43,17 @@ export const WeatherStorageView: React.FC<WeatherStorageViewProps> = ({
   crop,
   language,
   currentState,
-  isDarkMode,
   onNavigateToProfit,
   onNavigateToHelp,
 }) => {
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [isLoadingWeather, setIsLoadingWeather] = useState<boolean>(true);
   const [weatherSimulation, setWeatherSimulation] = useState<'live' | 'rain' | 'heat'>('live');
-  const [isPlayingStorageAudio, setIsPlayingStorageAudio] = useState<boolean>(false);
-  const [locationSource, setLocationSource] = useState<'gps' | 'regional'>('regional');
+  const [isPlayingHeaderAudio, setIsPlayingHeaderAudio] = useState<boolean>(false);
+  const [isStorageDetailsOpen, setIsStorageDetailsOpen] = useState<boolean>(false);
+  const wt = WEATHER_TRANSLATIONS[language] || WEATHER_TRANSLATIONS.en;
 
-  // Load weather
+  // Load weather data
   const loadWeather = useCallback(
     async (mode: 'live' | 'rain' | 'heat') => {
       setIsLoadingWeather(true);
@@ -74,11 +77,10 @@ export const WeatherStorageView: React.FC<WeatherStorageViewProps> = ({
         return;
       }
 
-      // Live GPS
+      // Live GPS check
       if (typeof window !== 'undefined' && 'geolocation' in navigator) {
         navigator.geolocation.getCurrentPosition(
           async (pos) => {
-            setLocationSource('gps');
             const data = await fetchLiveWeatherData(
               pos.coords.latitude,
               pos.coords.longitude,
@@ -90,7 +92,6 @@ export const WeatherStorageView: React.FC<WeatherStorageViewProps> = ({
           },
           async (err) => {
             console.log('Geolocation unavailable, using regional:', err.message);
-            setLocationSource('regional');
             const data = await fetchLiveWeatherData(fallbackLat, fallbackLng, locLabel, false);
             setWeatherData(data);
             setIsLoadingWeather(false);
@@ -98,7 +99,6 @@ export const WeatherStorageView: React.FC<WeatherStorageViewProps> = ({
           { timeout: 6000, enableHighAccuracy: false }
         );
       } else {
-        setLocationSource('regional');
         const data = await fetchLiveWeatherData(fallbackLat, fallbackLng, locLabel, false);
         setWeatherData(data);
         setIsLoadingWeather(false);
@@ -111,12 +111,12 @@ export const WeatherStorageView: React.FC<WeatherStorageViewProps> = ({
     loadWeather(weatherSimulation);
   }, [currentState, weatherSimulation, loadWeather]);
 
-  // Context-aware storage suggestion
+  // Storage suggestion reference
   const storageSuggestion = useMemo(() => {
     const risk =
       weatherData?.riskType === 'rain' || weatherData?.riskType === 'heat'
         ? weatherData.riskType
-        : 'rain'; // provide advice even for normal conditions as proactive guide
+        : 'rain';
     return getContextAwareStorageSuggestion(
       crop.id,
       crop.name,
@@ -124,36 +124,32 @@ export const WeatherStorageView: React.FC<WeatherStorageViewProps> = ({
       risk,
       language
     );
-  }, [crop.id, crop.name, crop.category, weatherData, language]);
+  }, [crop.id, crop.name, crop.category, weatherData?.riskType, language]);
 
-  // Audio speech
-  const handlePlayStorageAudio = () => {
-    if (isPlayingStorageAudio) {
+  const locName = weatherData?.locationName || currentState?.name || 'Local Mandi';
+
+  // Header quick audio overview
+  const handleToggleHeaderAudio = () => {
+    if (isPlayingHeaderAudio) {
       stopSpeaking();
-      setIsPlayingStorageAudio(false);
+      setIsPlayingHeaderAudio(false);
     } else {
-      if (!storageSuggestion) return;
-      setIsPlayingStorageAudio(true);
-      const textToSpeak =
-        language === 'hi'
-          ? storageSuggestion.audioSummary.hi
-          : language === 'mr'
-          ? storageSuggestion.audioSummary.mr
-          : storageSuggestion.audioSummary.en;
+      if (!weatherData) return;
+      setIsPlayingHeaderAudio(true);
+      const textToSpeak = `Current weather in ${locName}: Temperature is ${weatherData.temperature} degrees Celsius, humidity is ${weatherData.humidity} percent, and wind speed is ${weatherData.windSpeed ?? 14} kilometers per hour. Condition is ${weatherData.conditionLabel}. Check the AI Kisan Advisory below for ${crop.name} protection.`;
 
       speakText(textToSpeak, language, () => {
-        setIsPlayingStorageAudio(false);
+        setIsPlayingHeaderAudio(false);
       });
     }
   };
 
   const isRain = weatherData?.riskType === 'rain';
-  const isHeat = weatherData?.riskType === 'heat';
 
   return (
-    <div id="weather-storage-page" className="space-y-5">
-      {/* 1. Page Header with Voice Audio Callout & Crop HD Photo */}
-      <section className="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-2xs">
+    <div id="weather-page" className="space-y-5">
+      {/* 1. Page Header with Crop HD Photo & Audio Button */}
+      <section className="bg-white rounded-2xl p-4 sm:p-6 border border-slate-200 shadow-2xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200">
           <div className="flex items-start gap-3">
             <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden border border-slate-200 shadow-2xs shrink-0 bg-slate-100 mt-0.5">
@@ -168,33 +164,42 @@ export const WeatherStorageView: React.FC<WeatherStorageViewProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-black uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/80">
-                  Page 4 of 5
+                  Page 4 of 5 • Weather
                 </span>
                 <span className="text-xs text-slate-500 font-bold">
                   {currentState?.name} Mandi Zone
                 </span>
               </div>
               <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-1">
-                Weather Forecast & Safe Crop Storage
+                {wt.pageTitle}
               </h1>
               <p className="text-xs sm:text-sm text-slate-600 font-medium">
-                मौसम पूर्वानुमान और {crop.name} ({crop.hindiName}) का सुरक्षित भंडारण दिशा-निर्देश
+                {wt.pageSubtitle} ({crop.name} - {crop.hindiName || ''})
               </p>
             </div>
           </div>
 
           <button
             type="button"
-            id="listen-weather-storage-btn"
-            onClick={handlePlayStorageAudio}
+            id="listen-weather-overview-btn"
+            onClick={handleToggleHeaderAudio}
             className={`min-h-[44px] px-4 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-2 transition-all border cursor-pointer select-none shadow-2xs ${
-              isPlayingStorageAudio
+              isPlayingHeaderAudio
                 ? 'bg-slate-900 text-white border-slate-900 animate-pulse'
                 : 'bg-amber-100 hover:bg-amber-200/90 text-amber-950 border-amber-300'
             }`}
           >
-            <Volume2 className="w-4 h-4 text-amber-800" />
-            <span>{isPlayingStorageAudio ? 'आवाज चल रही है...' : '🔊 आवाज में सुनें (Listen)'}</span>
+            {isPlayingHeaderAudio ? (
+              <>
+                <VolumeX className="w-4 h-4 text-amber-300" />
+                <span>{wt.stopAudio}</span>
+              </>
+            ) : (
+              <>
+                <Volume2 className="w-4 h-4 text-amber-800" />
+                <span>{wt.listenAudio}</span>
+              </>
+            )}
           </button>
         </div>
 
@@ -202,20 +207,20 @@ export const WeatherStorageView: React.FC<WeatherStorageViewProps> = ({
         <div className="mt-4 pt-1">
           <div className="flex flex-wrap items-center justify-between gap-2.5 mb-3">
             <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
-              <MapPin className="w-4 h-4 text-emerald-700" />
-              <span>{weatherData?.locationName || currentState?.name || 'Local Mandi'}</span>
+              <MapPin className="w-4 h-4 text-emerald-700 shrink-0" />
+              <span>{locName}</span>
               <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-semibold border border-slate-200">
                 {weatherData?.source === 'gps'
-                  ? '📍 GPS Geolocation'
+                  ? wt.gpsLocation
                   : weatherData?.source === 'simulated'
-                  ? '⚡ Simulated'
-                  : '🗺️ Regional'}
+                  ? wt.simulated
+                  : wt.regionalStation}
               </span>
             </div>
 
             {/* Test buttons for farmers/reviewers */}
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-[10px] font-bold text-slate-500 mr-1">Test Conditions:</span>
+              <span className="text-[10px] font-bold text-slate-500 mr-1">{wt.testForecast}</span>
               <button
                 type="button"
                 id="weather-view-live"
@@ -229,7 +234,7 @@ export const WeatherStorageView: React.FC<WeatherStorageViewProps> = ({
                     : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
                 }`}
               >
-                Live GPS
+                {wt.liveForecast}
               </button>
               <button
                 type="button"
@@ -244,7 +249,7 @@ export const WeatherStorageView: React.FC<WeatherStorageViewProps> = ({
                     : 'bg-blue-50 text-blue-900 border-blue-200 hover:bg-blue-100'
                 }`}
               >
-                🌧️ Test Rain (42mm)
+                {wt.testRain}
               </button>
               <button
                 type="button"
@@ -259,62 +264,62 @@ export const WeatherStorageView: React.FC<WeatherStorageViewProps> = ({
                     : 'bg-amber-50 text-amber-950 border-amber-200 hover:bg-amber-100'
                 }`}
               >
-                ☀️ Test Heat (43°C)
+                {wt.testHeat}
               </button>
             </div>
           </div>
 
-          {/* 4 Weather Cards */}
+          {/* 4 Weather Metric Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
             <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
               <div className="flex items-center justify-between text-slate-400 mb-1">
-                <span className="text-[11px] font-bold uppercase">Temperature</span>
+                <span className="text-[11px] font-bold uppercase">{wt.temperature}</span>
                 <Thermometer className="w-3.5 h-3.5 text-amber-600" />
               </div>
               <div className="text-lg sm:text-xl font-black text-slate-900 tabular-nums">
                 {isLoadingWeather ? '...' : `${weatherData?.temperature}°C`}
               </div>
-              <span className="text-[10px] text-slate-500 font-medium">
+              <span className="text-[10px] text-slate-500 font-medium block truncate">
                 High: {weatherData?.maxTemperature}°C / Low: {weatherData?.minTemperature}°C
               </span>
             </div>
 
             <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
               <div className="flex items-center justify-between text-slate-400 mb-1">
-                <span className="text-[11px] font-bold uppercase">Precipitation</span>
+                <span className="text-[11px] font-bold uppercase">{wt.precipitation}</span>
                 <CloudRain className="w-3.5 h-3.5 text-blue-600" />
               </div>
               <div className="text-lg sm:text-xl font-black text-slate-900 tabular-nums">
                 {isLoadingWeather ? '...' : `${weatherData?.precipitationSum} mm`}
               </div>
-              <span className="text-[10px] text-slate-500 font-medium">
-                {weatherData?.precipitationProbability}% rain chance today
+              <span className="text-[10px] text-slate-500 font-medium block truncate">
+                {weatherData?.precipitationProbability}% {wt.rainProbability}
               </span>
             </div>
 
             <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
               <div className="flex items-center justify-between text-slate-400 mb-1">
-                <span className="text-[11px] font-bold uppercase">Relative Humidity</span>
+                <span className="text-[11px] font-bold uppercase">{wt.relativeHumidity}</span>
                 <Droplets className="w-3.5 h-3.5 text-cyan-600" />
               </div>
               <div className="text-lg sm:text-xl font-black text-slate-900 tabular-nums">
                 {isLoadingWeather ? '...' : `${weatherData?.humidity}%`}
               </div>
-              <span className="text-[10px] text-slate-500 font-medium">
-                Air moisture level
+              <span className="text-[10px] text-slate-500 font-medium block truncate">
+                {wt.airMoisture}
               </span>
             </div>
 
             <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
               <div className="flex items-center justify-between text-slate-400 mb-1">
-                <span className="text-[11px] font-bold uppercase">Conditions</span>
-                <Sun className="w-3.5 h-3.5 text-emerald-600" />
+                <span className="text-[11px] font-bold uppercase">{wt.windAndSky}</span>
+                <Wind className="w-3.5 h-3.5 text-teal-600" />
               </div>
-              <div className="text-sm sm:text-base font-black text-slate-900 truncate">
-                {isLoadingWeather ? 'Checking...' : weatherData?.conditionLabel}
+              <div className="text-base sm:text-lg font-black text-slate-900 truncate">
+                {isLoadingWeather ? 'Checking...' : `${weatherData?.windSpeed ?? 14} km/h`}
               </div>
-              <span className="text-[10px] text-emerald-800 font-bold block mt-0.5">
-                {weatherData?.isExtremeRisk ? '⚠️ High Risk Active' : '✓ Normal Conditions'}
+              <span className="text-[10px] text-slate-600 font-semibold block truncate">
+                {weatherData?.conditionLabel}
               </span>
             </div>
           </div>
@@ -338,10 +343,10 @@ export const WeatherStorageView: React.FC<WeatherStorageViewProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <span className="bg-black/30 text-amber-200 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider">
-                  Urgent Warning
+                  {wt.urgentRiskAlert}
                 </span>
                 <span className="text-xs font-bold opacity-90">
-                  Impact on Mandi Arrivals & Produce Quality
+                  {wt.mandiImpact}
                 </span>
               </div>
               <h2 className="text-base sm:text-lg font-black mt-1">
@@ -349,95 +354,123 @@ export const WeatherStorageView: React.FC<WeatherStorageViewProps> = ({
               </h2>
               <p className="text-xs sm:text-sm text-white/95 mt-1 leading-snug font-medium">
                 {isRain
-                  ? `Rainfall of ${weatherData.precipitationSum} mm will waterlog open APMC yards and spoil wet bags. Follow the storage directives below to avoid distress price dockage of 15%–30%.`
-                  : `High temperatures of ${weatherData.maxTemperature}°C will cause rapid moisture loss, heat softening, and weight shrinkage. Store in shade and schedule transport before 8 AM.`}
+                  ? `Rainfall of ${weatherData.precipitationSum} mm will waterlog open APMC yards and spoil wet bags. Follow the AI advisory below to avoid price dockage of 15%–30%.`
+                  : `High temperatures of ${weatherData.maxTemperature}°C will cause rapid moisture loss, heat softening, and weight shrinkage. Schedule transport before 7:30 AM.`}
               </p>
             </div>
           </div>
         </div>
       )}
 
-      {/* 4. Concrete Crop-Specific Safe Storage Directives */}
+      {/* 4. AI Kisan Weather Advisory Card (Gemini 2.5 Flash) */}
+      <AIWeatherAdvisoryCard
+        crop={crop}
+        locationName={locName}
+        weather={weatherData}
+        language={language}
+      />
+
+      {/* 5. Interactive Weather Q&A Chatbot (5-Question Limit) */}
+      <WeatherChatbot
+        crop={crop}
+        locationName={locName}
+        weather={weatherData}
+        language={language}
+      />
+
+      {/* 6. Scientific Storage Specifications Reference (Collapsible Accordion) */}
       {storageSuggestion && (
         <section
-          id="safe-storage-directives-card"
-          className="bg-white rounded-2xl p-4 sm:p-6 border border-slate-200 shadow-2xs space-y-4"
+          id="scientific-storage-reference"
+          className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden"
         >
-          <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-200">
-            <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-xl bg-emerald-700 text-white flex items-center justify-center shrink-0 shadow-2xs">
-                <Warehouse className="w-5 h-5 stroke-[2.2]" />
+          <button
+            type="button"
+            onClick={() => setIsStorageDetailsOpen(!isStorageDetailsOpen)}
+            className="w-full p-4 sm:p-5 flex items-center justify-between text-left hover:bg-slate-50 transition-colors cursor-pointer"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
+                <Warehouse className="w-4 h-4 stroke-[2.2]" />
               </div>
               <div>
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-wide block">
-                  Scientific Storage Advisory
-                </span>
-                <h3 className="text-base sm:text-lg font-black text-slate-900 leading-tight">
-                  {storageSuggestion.headline}
+                <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  <span>{wt.scientificStorageTitle}</span>
+                  <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
+                    {crop.name}
+                  </span>
                 </h3>
+                <p className="text-xs text-slate-500 font-medium mt-0.5">
+                  {wt.scientificStorageSubtitle}
+                </p>
               </div>
             </div>
 
-            <span className="text-xs font-extrabold px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 border border-slate-200 shrink-0">
-              Crop: {crop.name}
-            </span>
-          </div>
+            <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
+              <span className="hidden sm:inline">{isStorageDetailsOpen ? wt.hideGuidelines : wt.viewGuidelines}</span>
+              {isStorageDetailsOpen ? (
+                <ChevronUp className="w-4 h-4 text-slate-600" />
+              ) : (
+                <ChevronDown className="w-4 h-4 text-slate-600" />
+              )}
+            </div>
+          </button>
 
-          {/* Key Directives Checklist */}
-          <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2 flex items-center gap-1.5">
-              <ShieldAlert className="w-4 h-4 text-emerald-700" />
-              <span>Essential Safe Storage Steps for Farmers:</span>
-            </h4>
-            <div className="space-y-2">
-              {storageSuggestion.keyDirectives.map((directive, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200"
-                >
-                  <span className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5 shadow-2xs">
-                    {idx + 1}
+          {isStorageDetailsOpen && (
+            <div className="p-4 sm:p-5 pt-0 border-t border-slate-100 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3">
+                <div className="p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-200">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wide text-emerald-900 block">
+                    {wt.recommendedStructure}
                   </span>
-                  <p className="text-xs sm:text-sm font-semibold text-slate-800 leading-snug">
-                    {directive}
+                  <div className="text-sm font-black text-emerald-950 mt-0.5">
+                    {storageSuggestion.facilityType}
+                  </div>
+                  <div className="text-xs text-emerald-800 font-bold mt-1.5 flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                    <span>{wt.safeDuration}: {storageSuggestion.safeStorageDuration}</span>
+                  </div>
+                  <div className="text-[11px] text-emerald-700 font-medium mt-0.5">
+                    {wt.moistureStandard}: {storageSuggestion.moistureLimit}
+                  </div>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-amber-50/80 border border-amber-200">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wide text-amber-900 flex items-center gap-1">
+                    <AlertTriangle className="w-3.5 h-3.5 text-amber-700 shrink-0" />
+                    <span>{wt.mandiDispatchCaution}</span>
+                  </span>
+                  <p className="text-xs font-semibold text-amber-950 mt-1 leading-snug">
+                    {storageSuggestion.mandiTransitAdvice}
                   </p>
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
 
-          {/* Facility Specifications & Transit Advice */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-            <div className="p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-200">
-              <span className="text-[10px] font-extrabold uppercase tracking-wide text-emerald-900 block">
-                Recommended Structure
-              </span>
-              <div className="text-sm font-black text-emerald-950 mt-0.5">
-                {storageSuggestion.facilityType}
-              </div>
-              <div className="text-xs text-emerald-800 font-bold mt-1.5 flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
-                <span>Safe Duration: {storageSuggestion.safeStorageDuration}</span>
-              </div>
-              <div className="text-[11px] text-emerald-700 font-medium mt-0.5">
-                Moisture Standard: {storageSuggestion.moistureLimit}
+              {/* Standard Directives Checklist */}
+              <div>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">
+                  {wt.keyDirectivesFor} {crop.name}:
+                </h4>
+                <div className="space-y-1.5">
+                  {storageSuggestion.keyDirectives.map((directive, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-start gap-2.5 p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-xs font-medium text-slate-800"
+                    >
+                      <span className="w-4 h-4 rounded-full bg-slate-200 text-slate-800 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">
+                        {idx + 1}
+                      </span>
+                      <span>{directive}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-
-            <div className="p-3.5 rounded-xl bg-amber-50/80 border border-amber-200">
-              <span className="text-[10px] font-extrabold uppercase tracking-wide text-amber-900 flex items-center gap-1">
-                <AlertTriangle className="w-3.5 h-3.5 text-amber-700" />
-                <span>Mandi Dispatch Caution</span>
-              </span>
-              <p className="text-xs font-semibold text-amber-950 mt-1 leading-snug">
-                {storageSuggestion.mandiTransitAdvice}
-              </p>
-            </div>
-          </div>
+          )}
         </section>
       )}
 
-      {/* 5. Navigation Buttons (Prev & Next Page) */}
+      {/* 7. Page Navigation Buttons */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
         <button
           type="button"
@@ -445,7 +478,7 @@ export const WeatherStorageView: React.FC<WeatherStorageViewProps> = ({
           className="w-full sm:w-auto min-h-[48px] px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-800 font-bold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>⬅️ 3. मंडी मुनाफा (Back to Profit)</span>
+          <span>{wt.backToProfit}</span>
         </button>
 
         <button
@@ -453,7 +486,7 @@ export const WeatherStorageView: React.FC<WeatherStorageViewProps> = ({
           onClick={onNavigateToHelp}
           className="w-full sm:w-auto min-h-[48px] px-5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-extrabold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md"
         >
-          <span>5. हेल्पलाइन व एसएमएस (Next: Kisan Help)</span>
+          <span>{wt.nextKisanHelp}</span>
           <ArrowRight className="w-4 h-4" />
         </button>
       </div>

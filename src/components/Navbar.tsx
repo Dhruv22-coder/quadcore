@@ -17,7 +17,9 @@ import {
   Sparkles,
   Sun,
   Moon,
+  Cloud,
 } from 'lucide-react';
+import { useFirebase } from '../context/FirebaseContext';
 import { Language, IndianState, ActivePage } from '../types';
 import { translations } from '../lib/utils';
 import { NAV_TRANSLATIONS } from '../data/navigationTranslations';
@@ -34,6 +36,7 @@ interface NavbarProps {
   currentState: IndianState;
   onOpenLocationModal: () => void;
   onOpenAgriTipsModal: () => void;
+  onOpenCloudModal?: () => void;
   activePage: ActivePage;
   onPageChange: (page: ActivePage) => void;
 }
@@ -203,9 +206,11 @@ export const Navbar: React.FC<NavbarProps> = ({
   currentState,
   onOpenLocationModal,
   onOpenAgriTipsModal,
+  onOpenCloudModal,
   activePage,
   onPageChange,
 }) => {
+  const { user, isCloudSyncing } = useFirebase();
   const isDark = isSunlightMode ?? isDarkMode ?? false;
   const toggleDark = onToggleSunlightMode || onToggleDarkMode || (() => {});
   const [langMenuOpen, setLangMenuOpen] = useState(false);
@@ -276,22 +281,22 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               id="location-state-button"
               onClick={onOpenLocationModal}
-              className="h-8 sm:h-9 lg:h-10 px-1.5 sm:px-2.5 rounded-lg bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold flex items-center gap-1 sm:gap-1.5 transition-colors shadow-2xs group cursor-pointer shrink-0"
+              className="h-7 md:h-9 lg:h-10 px-2 py-1 md:px-2.5 rounded-lg bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold flex items-center gap-1 md:gap-1.5 transition-colors shadow-2xs group cursor-pointer shrink-0 max-w-[110px] md:max-w-none"
               title={`${t.locationLabel}: ${currentState.name} (${currentState.nativeName})`}
               aria-label="Change State Location"
             >
-              <MapPin className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400 shrink-0 group-hover:scale-110 transition-transform" />
-              <span className="font-bold text-[11px] sm:text-xs text-slate-900 dark:text-white truncate max-w-[48px] xs:max-w-[75px] sm:max-w-[110px]">
+              <MapPin className="w-3 h-3 md:w-3.5 md:h-3.5 text-emerald-700 dark:text-emerald-400 shrink-0 group-hover:scale-110 transition-transform" />
+              <span className="font-bold text-xs text-slate-900 dark:text-white truncate max-w-[110px]">
                 {currentState.name}
               </span>
-              <ChevronDown className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-slate-400 shrink-0" />
+              <ChevronDown className="w-2.5 h-2.5 md:w-3 md:h-3 text-slate-400 shrink-0" />
             </button>
 
             {/* Beginner Farmer Crop & Soil Tips Button (Localized in Regional Language) */}
             <button
               id="header-agri-tips-button"
               onClick={onOpenAgriTipsModal}
-              className="h-8 sm:h-9 lg:h-10 px-2 sm:px-2.5 rounded-lg bg-amber-50 dark:bg-amber-950/70 hover:bg-amber-100/90 dark:hover:bg-amber-900/80 border border-amber-300/80 dark:border-amber-700/80 text-amber-950 dark:text-amber-200 text-xs font-black flex items-center gap-1 sm:gap-1.5 transition-all shadow-2xs group cursor-pointer shrink-0 animate-in fade-in"
+              className="hidden md:flex h-8 sm:h-9 lg:h-10 px-2 sm:px-2.5 rounded-lg bg-amber-50 dark:bg-amber-950/70 hover:bg-amber-100/90 dark:hover:bg-amber-900/80 border border-amber-300/80 dark:border-amber-700/80 text-amber-950 dark:text-amber-200 text-xs font-black items-center gap-1 sm:gap-1.5 transition-all shadow-2xs group cursor-pointer shrink-0 animate-in fade-in"
               title={`${tipsText.buttonLabel}: ${currentState.name} (${tipsText.drawerTitle})`}
               aria-label={`${tipsText.buttonLabel} - ${currentState.name}`}
             >
@@ -309,7 +314,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               id="header-theme-toggle-btn"
               type="button"
               onClick={toggleDark}
-              className={`h-8 sm:h-9 lg:h-10 px-2 sm:px-2.5 rounded-lg border text-xs font-black flex items-center gap-1 sm:gap-1.5 transition-all shadow-2xs cursor-pointer shrink-0 ${
+              className={`hidden md:flex h-8 sm:h-9 lg:h-10 px-2 sm:px-2.5 rounded-lg border text-xs font-black items-center gap-1 sm:gap-1.5 transition-all shadow-2xs cursor-pointer shrink-0 ${
                 isDark
                   ? 'bg-slate-800 hover:bg-slate-700 text-amber-300 border-slate-700 ring-1 ring-amber-400/30'
                   : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
@@ -353,6 +358,24 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </>
               )}
             </button>
+
+            {/* Cloud Sync / Farmer Account Button */}
+            {onOpenCloudModal && (
+              <button
+                id="header-cloud-sync-button"
+                type="button"
+                onClick={onOpenCloudModal}
+                className="hidden md:flex h-8 sm:h-9 lg:h-10 px-2 sm:px-2.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/70 hover:bg-emerald-100/90 dark:hover:bg-emerald-900/80 border border-emerald-300/80 dark:border-emerald-700/80 text-emerald-950 dark:text-emerald-200 text-xs font-black items-center gap-1 sm:gap-1.5 transition-all shadow-2xs group cursor-pointer shrink-0"
+                title="Kisan Cloud Sync (Firebase Firestore)"
+                aria-label="Kisan Cloud Account"
+              >
+                <Cloud className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400 shrink-0 group-hover:scale-110 transition-transform stroke-[2.2]" />
+                <span className="font-black text-[11px] sm:text-xs text-emerald-950 dark:text-emerald-200 tracking-tight">
+                  {user ? (user.displayName?.split(' ')[0] || 'Kisan') : 'Cloud'}
+                </span>
+                <span className={`w-1.5 h-1.5 rounded-full ${isCloudSyncing ? 'bg-amber-500 animate-ping' : user ? 'bg-emerald-500' : 'bg-slate-400'} hidden sm:inline-block`} />
+              </button>
+            )}
 
             {/* Language Selector Dropdown */}
             <div className="relative shrink-0">
@@ -479,6 +502,27 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             {/* Quick Settings Bar inside drawer (Location & Agri Tips) */}
             <div className="space-y-1.5 pb-1">
+              {onOpenCloudModal && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onOpenCloudModal();
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full min-h-[42px] px-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/70 hover:bg-emerald-100 dark:hover:bg-emerald-900 border border-emerald-300 dark:border-emerald-700 text-emerald-950 dark:text-emerald-200 text-xs font-bold flex items-center justify-between cursor-pointer transition-all"
+                >
+                  <div className="flex items-center gap-2 truncate">
+                    <Cloud className="w-4 h-4 text-emerald-700 dark:text-emerald-400 shrink-0 stroke-[2.2]" />
+                    <span className="truncate font-black">
+                      {user ? `Cloud Account (${user.displayName || 'Kisan'})` : 'Kisan Cloud Sync (Firebase)'}
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-emerald-800 dark:text-emerald-200 font-extrabold bg-emerald-200/90 dark:bg-emerald-800 px-2 py-0.5 rounded">
+                    {user ? 'Online' : 'Sign In'}
+                  </span>
+                </button>
+              )}
+
               <button
                 type="button"
                 onClick={() => {

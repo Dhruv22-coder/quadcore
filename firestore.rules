@@ -1,0 +1,160 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net: Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // --- User Profile ---
+    function isValidUserProfile(data) {
+      return data.id is string && data.id == request.auth.uid &&
+             (!('email' in data) || (data.email is string && data.email.size() <= 150)) &&
+             data.state is string && data.state.size() <= 50 &&
+             data.language is string && data.language.size() <= 10 &&
+             (!('displayName' in data) || (data.displayName is string && data.displayName.size() <= 100)) &&
+             (!('phone' in data) || (data.phone is string && data.phone.size() <= 25)) &&
+             (!('isSunlightMode' in data) || (data.isSunlightMode is bool)) &&
+             (!('selectedCropId' in data) || (data.selectedCropId is string && data.selectedCropId.size() <= 50)) &&
+             (!('selectedCropName' in data) || (data.selectedCropName is string && data.selectedCropName.size() <= 100)) &&
+             (!('quantity' in data) || (data.quantity is number && data.quantity >= 0)) &&
+             (!('unit' in data) || (data.unit is string && data.unit.size() <= 20)) &&
+             (!('lat' in data) || (data.lat is number)) &&
+             (!('lng' in data) || (data.lng is number)) &&
+             (!('village' in data) || (data.village is string && data.village.size() <= 100)) &&
+             (!('pooledFarmerIds' in data) || (data.pooledFarmerIds is list)) &&
+             data.updatedAt is string && data.updatedAt.size() <= 50;
+    }
+
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidId(userId) && isValidUserProfile(incoming());
+      allow update: if isOwner(userId) && isValidId(userId) && isValidUserProfile(incoming()) &&
+                    incoming().id == existing().id;
+      allow delete: if isOwner(userId);
+
+      // --- Watched Crops Subcollection ---
+      function isValidWatchedCrop(data) {
+        return data.id is string && data.id.size() <= 50 &&
+               data.cropId is string && data.cropId.size() <= 50 &&
+               data.cropName is string && data.cropName.size() <= 100 &&
+               data.userId is string && data.userId == userId &&
+               (!('targetMinPrice' in data) || (data.targetMinPrice is number && data.targetMinPrice >= 0)) &&
+               (!('targetMaxPrice' in data) || (data.targetMaxPrice is number && data.targetMaxPrice >= 0)) &&
+               (!('notes' in data) || (data.notes is string && data.notes.size() <= 500)) &&
+               data.updatedAt is string && data.updatedAt.size() <= 50;
+      }
+
+      match /watchlist/{cropDocId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(cropDocId) && isValidWatchedCrop(incoming());
+        allow update: if isOwner(userId) && isValidId(cropDocId) && isValidWatchedCrop(incoming()) &&
+                      incoming().id == existing().id &&
+                      incoming().userId == existing().userId &&
+                      incoming().cropId == existing().cropId;
+        allow delete: if isOwner(userId) && isValidId(cropDocId);
+      }
+
+      // --- Mandi Sales Records Subcollection ---
+      function isValidMandiSale(data) {
+        return data.id is string && data.id.size() <= 64 &&
+               data.userId is string && data.userId == userId &&
+               data.cropId is string && data.cropId.size() <= 50 &&
+               data.cropName is string && data.cropName.size() <= 100 &&
+               data.mandiName is string && data.mandiName.size() <= 100 &&
+               data.quantityQuintals is number && data.quantityQuintals >= 0 &&
+               data.ratePerQuintal is number && data.ratePerQuintal >= 0 &&
+               (!('transportCost' in data) || (data.transportCost is number && data.transportCost >= 0)) &&
+               (!('netProfit' in data) || (data.netProfit is number)) &&
+               data.saleDate is string && data.saleDate.size() <= 30 &&
+               data.createdAt is string && data.createdAt.size() <= 50;
+      }
+
+      match /sales/{saleDocId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(saleDocId) && isValidMandiSale(incoming());
+        allow update: if isOwner(userId) && isValidId(saleDocId) && isValidMandiSale(incoming()) &&
+                      incoming().id == existing().id &&
+                      incoming().userId == existing().userId &&
+                      incoming().createdAt == existing().createdAt;
+        allow delete: if isOwner(userId) && isValidId(saleDocId);
+      }
+    }
+
+    // --- Community Market Tips ---
+    function isValidCommunityTip(data) {
+      return data.id is string && data.id.size() <= 64 &&
+             data.authorId is string && data.authorId == request.auth.uid &&
+             data.authorName is string && data.authorName.size() <= 100 &&
+             data.cropName is string && data.cropName.size() <= 100 &&
+             (!('mandiName' in data) || (data.mandiName is string && data.mandiName.size() <= 100)) &&
+             data.tipText is string && data.tipText.size() <= 500 &&
+             (!('upvotes' in data) || (data.upvotes is number && data.upvotes >= 0)) &&
+             data.createdAt is string && data.createdAt.size() <= 50;
+    }
+
+    match /communityTips/{tipId} {
+      allow get, list: if true;
+      allow create: if isSignedIn() && isValidId(tipId) && isValidCommunityTip(incoming());
+      allow update: if isSignedIn() && isValidId(tipId) && (
+        // Author updating their own tip text/info
+        (resource.data.authorId == request.auth.uid && isValidCommunityTip(incoming()) &&
+         incoming().id == existing().id &&
+         incoming().authorId == existing().authorId &&
+         incoming().createdAt == existing().createdAt)
+        ||
+        // Any signed-in farmer upvoting: affectedKeys is ONLY upvotes
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['upvotes']) &&
+         request.resource.data.upvotes == resource.data.upvotes + 1)
+      );
+      allow delete: if isSignedIn() && isValidId(tipId) && resource.data.authorId == request.auth.uid;
+    }
+
+    // --- Farmer Load Pooling (< 15 Quintals Small Yields) ---
+    function isValidFarmerPool(data) {
+      return data.id is string && data.id.size() <= 64 &&
+             data.userId is string && data.userId == request.auth.uid &&
+             data.farmerName is string && data.farmerName.size() <= 100 &&
+             (!('phone' in data) || (data.phone is string && data.phone.size() <= 25)) &&
+             data.cropId is string && data.cropId.size() <= 50 &&
+             data.cropName is string && data.cropName.size() <= 100 &&
+             data.quantity is number && data.quantity >= 0 &&
+             data.unit is string && data.unit.size() <= 20 &&
+             (!('lat' in data) || (data.lat is number)) &&
+             (!('lng' in data) || (data.lng is number)) &&
+             (!('village' in data) || (data.village is string && data.village.size() <= 100)) &&
+             (!('state' in data) || (data.state is string && data.state.size() <= 50)) &&
+             data.updatedAt is string && data.updatedAt.size() <= 50;
+    }
+
+    match /farmerPools/{poolId} {
+      allow get, list: if true;
+      allow create: if isSignedIn() && isValidId(poolId) && isValidFarmerPool(incoming());
+      allow update: if isSignedIn() && isValidId(poolId) && isValidFarmerPool(incoming()) &&
+                    incoming().userId == existing().userId;
+      allow delete: if isSignedIn() && isValidId(poolId) && resource.data.userId == request.auth.uid;
+    }
+  }
+}

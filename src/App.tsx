@@ -19,12 +19,16 @@ import { KisanHelpView } from './components/KisanHelpView';
 import { VoiceSearchModal } from './components/VoiceSearchModal';
 import { LocationSelectorModal } from './components/LocationSelectorModal';
 import { NewbieAgriTipsModal } from './components/NewbieAgriTipsModal';
+import { FarmerCloudAccountModal } from './components/FarmerCloudAccountModal';
+import { FarmerConnectModal, FarmerConnectFloatingButton } from './components/FarmerConnectModal';
+import { FirebaseProvider, useFirebase } from './context/FirebaseContext';
 import { speakText, stopSpeaking, translations } from './lib/utils';
-import { Sprout, Radio, MapPin, CheckCircle, X } from 'lucide-react';
+import { Sprout, Radio, MapPin, CheckCircle, X, Mic } from 'lucide-react';
 
-export default function App() {
+function MandiApp() {
   const [crops] = useState<CropData[]>(mockCrops);
   const [selectedCropId, setSelectedCropId] = useState<string>('onion');
+  const [quantity, setQuantity] = useState<number>(12); // Default to 12 quintals to naturally show small-yield pooling benefits
   const [activePage, setActivePage] = useState<ActivePage>('crops');
   // Default to Maharashtra with Marathi, or auto-detect on mount
   const [currentState, setCurrentState] = useState<IndianState>(
@@ -36,7 +40,31 @@ export default function App() {
   const [isVoiceSearchOpen, setIsVoiceSearchOpen] = useState<boolean>(false);
   const [isLocationModalOpen, setIsLocationModalOpen] = useState<boolean>(false);
   const [isAgriTipsModalOpen, setIsAgriTipsModalOpen] = useState<boolean>(false);
+  const [isCloudModalOpen, setIsCloudModalOpen] = useState<boolean>(false);
+  const [isFarmerConnectOpen, setIsFarmerConnectOpen] = useState<boolean>(false);
   const [locationToast, setLocationToast] = useState<string | null>(null);
+
+  const { profile, userProfile, syncActiveCropAndYield, pooledFarmers } = useFirebase();
+
+  // Sync state if preferred in Firestore profile
+  useEffect(() => {
+    if (userProfile?.statePreference) {
+      const matched = INDIAN_STATES.find((s) => s.id === userProfile.statePreference);
+      if (matched && matched.id !== currentState.id) {
+        setCurrentState(matched);
+      }
+    }
+  }, [userProfile?.statePreference]);
+
+  // Sync profile crop and quantity from Firestore if available
+  useEffect(() => {
+    if (profile?.selectedCropId && profile.selectedCropId !== selectedCropId) {
+      setSelectedCropId(profile.selectedCropId);
+    }
+    if (profile?.quantity && profile.quantity !== quantity) {
+      setQuantity(profile.quantity);
+    }
+  }, [profile?.selectedCropId, profile?.quantity]);
 
   // Dynamically attach real mandis of the selected state (within 100 km radius)
   const selectedCrop = useMemo(() => {
@@ -120,11 +148,23 @@ export default function App() {
     }
   };
 
-  const handleSelectCrop = (cropId: string, autoAdvance: boolean = false) => {
+  // 1. Automatic Background State Sync to Firestore:
+  // When the user selects a crop on the '1. Crops' page, immediately save/update 'selectedCrop' in their active farmer document in Firestore.
+  const handleSelectCrop = (cropId: string, autoAdvance: boolean = true) => {
     setSelectedCropId(cropId);
+    syncActiveCropAndYield(cropId, quantity, 'quintal');
     if (autoAdvance) {
       setActivePage('decision');
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     }
+  };
+
+  // When the user inputs or tweaks their crop quantity/yield anywhere in the workflow (e.g., in '2. Decision' or '3. Profit'), auto-sync that 'quantity' and 'unit' to their Firestore record in real-time.
+  const handleQuantityChange = (newQty: number) => {
+    setQuantity(newQty);
+    syncActiveCropAndYield(selectedCropId, newQty, 'quintal');
   };
 
   return (
@@ -146,6 +186,7 @@ export default function App() {
         currentState={currentState}
         onOpenLocationModal={() => setIsLocationModalOpen(true)}
         onOpenAgriTipsModal={() => setIsAgriTipsModalOpen(true)}
+        onOpenCloudModal={() => setIsCloudModalOpen(true)}
         activePage={activePage}
         onPageChange={setActivePage}
       />
@@ -192,10 +233,15 @@ export default function App() {
               Change State
             </button>
             <span className="hidden sm:inline text-[11px]">Updated 10m ago</span>
-            <span className="inline-flex items-center gap-1 font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/80 text-[11px]">
+            <button
+              type="button"
+              onClick={() => setIsCloudModalOpen(true)}
+              className="inline-flex items-center gap-1 font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-2 py-0.5 rounded-md border border-emerald-200/80 text-[11px] cursor-pointer transition-colors"
+              title="Kisan Cloud Firestore Account"
+            >
               <Radio className="w-3 h-3 text-emerald-600 animate-pulse" />
-              Agmarknet Sync
-            </span>
+              Agmarknet & Cloud Sync
+            </button>
           </div>
         </div>
 
@@ -222,7 +268,7 @@ export default function App() {
           <CropSelector
             crops={crops}
             selectedCropId={selectedCropId}
-            onSelectCrop={(id) => handleSelectCrop(id, false)}
+            onSelectCrop={(id) => handleSelectCrop(id, true)}
             language={language}
             onOpenVoiceSearch={() => setIsVoiceSearchOpen(true)}
             isSunlightMode={isSunlightMode}
@@ -238,6 +284,9 @@ export default function App() {
             isAudioPlaying={isAudioPlaying}
             isSunlightMode={isSunlightMode}
             currentState={currentState}
+            harvestQuantity={quantity}
+            onQuantityChange={handleQuantityChange}
+            onOpenPoolingModal={() => setIsFarmerConnectOpen(true)}
             onNavigateToCrops={() => setActivePage('crops')}
             onNavigateToProfit={() => setActivePage('profit')}
             onNavigateToWeather={() => setActivePage('weather')}
@@ -250,6 +299,9 @@ export default function App() {
             language={language}
             currentState={currentState}
             isSunlightMode={isSunlightMode}
+            quantity={quantity}
+            onQuantityChange={handleQuantityChange}
+            onOpenPoolingModal={() => setIsFarmerConnectOpen(true)}
             onNavigateToDecision={() => setActivePage('decision')}
             onNavigateToWeather={() => setActivePage('weather')}
           />
@@ -278,6 +330,64 @@ export default function App() {
         )}
       </main>
 
+      {/* 1. Global Persistent Floating Voice Search Button */}
+      {/* Position: fixed bottom-24 right-6 z-50 (stacked cleanly above 'Connect with Farmers' at bottom-6 right-6 with 24px gap) */}
+      <div className="fixed bottom-24 right-6 z-50 animate-fade-in">
+        <button
+          id="global-floating-voice-search-btn"
+          type="button"
+          onClick={() => setIsVoiceSearchOpen(true)}
+          aria-label="Bol Kar Khojein / Voice Search"
+          title="Bol Kar Khojein / Voice Search"
+          className="group flex items-center gap-2.5 px-3.5 sm:px-4 py-2 sm:py-2.5 bg-linear-to-r from-emerald-800 via-emerald-700 to-teal-800 hover:from-emerald-900 hover:to-teal-900 active:scale-95 text-white rounded-full shadow-xl border-2 border-emerald-400/50 hover:shadow-2xl transition-all cursor-pointer select-none"
+        >
+          <div className="relative">
+            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center border border-white/30 shrink-0">
+              <Mic className="w-4 h-4 text-emerald-100 group-hover:scale-110 transition-transform stroke-[2.2]" />
+            </div>
+            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+          </div>
+
+          <div className="text-left">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs sm:text-sm font-black tracking-tight leading-tight">
+                {t.voiceSearchBtn}
+              </span>
+              <span className="text-[10px] bg-emerald-600/80 text-white font-extrabold px-1.5 py-0.2 rounded-full uppercase">
+                Mic
+              </span>
+            </div>
+            <span className="text-[10px] text-emerald-100 block leading-none mt-0.5">
+              {language === 'hi' ? 'बोल कर खोजें और नेविगेट करें' : language === 'mr' ? 'बोलून शोधा व नेव्हिगेट करा' : 'Voice Search & Navigate'}
+            </span>
+          </div>
+        </button>
+      </div>
+
+      {/* 2. Conditional Persistent Floating Button ('Connect with Farmers') */}
+      {/* CRITICAL VISIBILITY RULE: Visible across all tabs ONLY when quantity is strictly < 15 quintals */}
+      <FarmerConnectFloatingButton
+        harvestQuantity={quantity}
+        cropName={selectedCrop.name}
+        onClick={() => setIsFarmerConnectOpen(true)}
+        pooledFarmersCount={pooledFarmers.filter((f) => f.cropId === selectedCrop.id).length}
+        language={language}
+      />
+
+      {/* Farmer Connect / Vehicle Pooling Modal */}
+      <FarmerConnectModal
+        isOpen={isFarmerConnectOpen}
+        onClose={() => setIsFarmerConnectOpen(false)}
+        crop={selectedCrop}
+        harvestQuantity={quantity}
+        language={language}
+        currentState={currentState}
+        onNavigateToProfit={() => {
+          setIsFarmerConnectOpen(false);
+          setActivePage('profit');
+        }}
+      />
+
       {/* Location / State Selector Modal */}
       <LocationSelectorModal
         isOpen={isLocationModalOpen}
@@ -303,6 +413,19 @@ export default function App() {
         crops={crops}
         onSelectCrop={(id) => handleSelectCrop(id, true)}
         language={language}
+        onNavigatePage={(page) => setActivePage(page)}
+      />
+
+      {/* Kisan Cloud Account & Firebase Firestore Modal */}
+      <FarmerCloudAccountModal
+        isOpen={isCloudModalOpen}
+        onClose={() => setIsCloudModalOpen(false)}
+        language={language}
+        crops={crops}
+        selectedCrop={selectedCrop}
+        onSelectCrop={(crop) => {
+          handleSelectCrop(crop.id, true);
+        }}
       />
 
       {/* Modern, Clean Utility Footer */}
@@ -325,5 +448,13 @@ export default function App() {
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <FirebaseProvider>
+      <MandiApp />
+    </FirebaseProvider>
   );
 }
