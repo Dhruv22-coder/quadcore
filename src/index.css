@@ -2,13 +2,12 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@theme {
+  --color-slate-750: #293548;
+  --color-slate-850: #151e2e;
+}
+
 @layer base {
-  * {
-    border-color: #e2e8f0;
-  }
-  .dark, .dark * {
-    border-color: #334155;
-  }
   body {
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     background-color: #f8fafc;
@@ -16,8 +15,9 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-  html.dark, body.dark {
-    background-color: #0b1120;
+  
+  html.dark, html.dark body, body.dark {
+    background-color: #020617; /* Replaced custom #0b1120 with tailwind's slate-950 for better integration */
     color: #f1f5f9;
   }
   
@@ -38,9 +38,9 @@
   }
 
   .dark ::-webkit-scrollbar-thumb {
-    background: #475569;
+    background: #334155; /* Changed from 475569 to a more elegant dark slate-700 */
   }
   .dark ::-webkit-scrollbar-thumb:hover {
-    background: #64748b;
+    background: #475569; /* Changed from 64748b to slate-600 */
   }
 }
