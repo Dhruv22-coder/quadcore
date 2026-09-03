@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   Volume2,
   VolumeX,
-  Sun,
   Sprout,
   Globe,
   Check,
@@ -26,8 +25,6 @@ interface NavbarProps {
   onLanguageChange: (lang: Language) => void;
   isAudioPlaying: boolean;
   onToggleAudio: () => void;
-  isSunlightMode: boolean;
-  onToggleSunlightMode: () => void;
   currentState: IndianState;
   onOpenLocationModal: () => void;
   activePage: ActivePage;
@@ -53,8 +50,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   onLanguageChange,
   isAudioPlaying,
   onToggleAudio,
-  isSunlightMode,
-  onToggleSunlightMode,
   currentState,
   onOpenLocationModal,
   activePage,
@@ -216,21 +211,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               )}
             </div>
 
-            {/* Sunlight High Contrast Mode Toggle (Always fully visible, shrink-0) */}
-            <button
-              id="sunlight-mode-toggle"
-              onClick={onToggleSunlightMode}
-              title={t.sunlightMode}
-              className={`h-8 w-8 sm:h-9 sm:w-9 lg:h-10 lg:w-10 rounded-lg text-xs font-bold flex items-center justify-center transition-all border shrink-0 cursor-pointer ${
-                isSunlightMode
-                  ? 'bg-amber-400 text-slate-950 font-black border-amber-500 shadow-xs'
-                  : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 shadow-2xs'
-              }`}
-              aria-label="Toggle Sunlight High Contrast Mode"
-            >
-              <Sun className={`w-4 h-4 ${isSunlightMode ? 'stroke-[2.5] text-slate-950 animate-spin-slow' : 'text-amber-600'}`} />
-            </button>
-
             {/* Mobile Menu Hamburger Toggle Button (Just icon on mobile) */}
             <button
               id="mobile-menu-toggle-btn"
@@ -300,39 +280,21 @@ export const Navbar: React.FC<NavbarProps> = ({
               </span>
             </div>
 
-            {/* Quick Settings Bar inside drawer (Sunlight mode & Location) */}
-            <div className="grid grid-cols-2 gap-2 pb-1">
-              <button
-                type="button"
-                onClick={onToggleSunlightMode}
-                className={`min-h-[42px] px-3 rounded-xl border flex items-center justify-between text-xs font-bold cursor-pointer transition-all ${
-                  isSunlightMode
-                    ? 'bg-amber-100 border-amber-400 text-amber-950 font-black'
-                    : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700'
-                }`}
-              >
-                <div className="flex items-center gap-1.5">
-                  <Sun className={`w-4 h-4 ${isSunlightMode ? 'text-amber-700 stroke-[2.5]' : 'text-amber-500'}`} />
-                  <span>{t.sunlightMode}</span>
-                </div>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded font-black ${isSunlightMode ? 'bg-amber-400 text-slate-950' : 'bg-slate-200 text-slate-600'}`}>
-                  {isSunlightMode ? 'ON' : 'OFF'}
-                </span>
-              </button>
-
+            {/* Quick Settings Bar inside drawer (Location Selector) */}
+            <div className="pb-1">
               <button
                 type="button"
                 onClick={() => {
                   onOpenLocationModal();
                   setMobileMenuOpen(false);
                 }}
-                className="min-h-[42px] px-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 text-xs font-bold flex items-center justify-between cursor-pointer transition-all"
+                className="w-full min-h-[42px] px-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 text-xs font-bold flex items-center justify-between cursor-pointer transition-all"
               >
-                <div className="flex items-center gap-1.5 truncate">
+                <div className="flex items-center gap-2 truncate">
                   <MapPin className="w-4 h-4 text-emerald-700 shrink-0" />
-                  <span className="truncate">{currentState.name}</span>
+                  <span className="truncate">Zone: {currentState.name} Mandi District</span>
                 </div>
-                <span className="text-[10px] text-slate-400">Change</span>
+                <span className="text-[11px] text-emerald-700 font-extrabold bg-emerald-100/70 px-2 py-0.5 rounded">Change</span>
               </button>
             </div>
 
