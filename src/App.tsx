@@ -18,6 +18,7 @@ import { WeatherStorageView } from './components/WeatherStorageView';
 import { KisanHelpView } from './components/KisanHelpView';
 import { VoiceSearchModal } from './components/VoiceSearchModal';
 import { LocationSelectorModal } from './components/LocationSelectorModal';
+import { NewbieAgriTipsModal } from './components/NewbieAgriTipsModal';
 import { speakText, stopSpeaking, translations } from './lib/utils';
 import { Sprout, Radio, MapPin, CheckCircle, X } from 'lucide-react';
 
@@ -34,6 +35,7 @@ export default function App() {
   const [isAudioPlaying, setIsAudioPlaying] = useState<boolean>(false);
   const [isVoiceSearchOpen, setIsVoiceSearchOpen] = useState<boolean>(false);
   const [isLocationModalOpen, setIsLocationModalOpen] = useState<boolean>(false);
+  const [isAgriTipsModalOpen, setIsAgriTipsModalOpen] = useState<boolean>(false);
   const [locationToast, setLocationToast] = useState<string | null>(null);
 
   // Dynamically attach real mandis of the selected state (within 100 km radius)
@@ -143,6 +145,7 @@ export default function App() {
         onToggleSunlightMode={() => setIsSunlightMode(!isSunlightMode)}
         currentState={currentState}
         onOpenLocationModal={() => setIsLocationModalOpen(true)}
+        onOpenAgriTipsModal={() => setIsAgriTipsModalOpen(true)}
         activePage={activePage}
         onPageChange={setActivePage}
       />
@@ -279,6 +282,15 @@ export default function App() {
       <LocationSelectorModal
         isOpen={isLocationModalOpen}
         onClose={() => setIsLocationModalOpen(false)}
+        currentState={currentState}
+        onSelectState={handleStateSelect}
+        language={language}
+      />
+
+      {/* Newbie Farmer Agri Tips Modal (Soil Condition, Weather & Seasonal Crops) */}
+      <NewbieAgriTipsModal
+        isOpen={isAgriTipsModalOpen}
+        onClose={() => setIsAgriTipsModalOpen(false)}
         currentState={currentState}
         onSelectState={handleStateSelect}
         language={language}

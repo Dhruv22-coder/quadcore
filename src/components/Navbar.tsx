@@ -27,6 +27,7 @@ interface NavbarProps {
   onToggleAudio: () => void;
   currentState: IndianState;
   onOpenLocationModal: () => void;
+  onOpenAgriTipsModal: () => void;
   activePage: ActivePage;
   onPageChange: (page: ActivePage) => void;
 }
@@ -52,6 +53,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onToggleAudio,
   currentState,
   onOpenLocationModal,
+  onOpenAgriTipsModal,
   activePage,
   onPageChange,
 }) => {
@@ -130,6 +132,23 @@ export const Navbar: React.FC<NavbarProps> = ({
                 {currentState.name}
               </span>
               <ChevronDown className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-slate-400 shrink-0" />
+            </button>
+
+            {/* Beginner Farmer Crop & Soil Tips Button (Next to State Section) */}
+            <button
+              id="header-agri-tips-button"
+              onClick={onOpenAgriTipsModal}
+              className="h-8 sm:h-9 lg:h-10 px-2 sm:px-2.5 rounded-lg bg-amber-50 hover:bg-amber-100/90 border border-amber-300/80 text-amber-950 text-xs font-black flex items-center gap-1 sm:gap-1.5 transition-all shadow-2xs group cursor-pointer shrink-0 animate-in fade-in"
+              title={`Newbie Farmer Tips: What crop to grow in ${currentState.name} based on soil & weather`}
+              aria-label="Newbie Farmer Tips & Seasonal Crop Guide"
+            >
+              <Sprout className="w-3.5 h-3.5 text-amber-700 shrink-0 group-hover:scale-110 transition-transform stroke-[2.2]" />
+              <span className="font-black text-[11px] sm:text-xs text-amber-950 tracking-tight">
+                Tips
+              </span>
+              <span className="hidden xl:inline-flex items-center text-[10px] font-extrabold px-1.5 py-0.2 rounded bg-amber-200/90 text-amber-900 ml-0.5">
+                Newbie
+              </span>
             </button>
 
             {/* Audio Mode Listen Button */}
@@ -280,8 +299,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               </span>
             </div>
 
-            {/* Quick Settings Bar inside drawer (Location Selector) */}
-            <div className="pb-1">
+            {/* Quick Settings Bar inside drawer (Location & Agri Tips) */}
+            <div className="space-y-1.5 pb-1">
               <button
                 type="button"
                 onClick={() => {
@@ -295,6 +314,21 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <span className="truncate">Zone: {currentState.name} Mandi District</span>
                 </div>
                 <span className="text-[11px] text-emerald-700 font-extrabold bg-emerald-100/70 px-2 py-0.5 rounded">Change</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  onOpenAgriTipsModal();
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full min-h-[42px] px-3 rounded-xl bg-amber-50 hover:bg-amber-100/80 border border-amber-300/80 text-amber-950 text-xs font-bold flex items-center justify-between cursor-pointer transition-all"
+              >
+                <div className="flex items-center gap-2 truncate">
+                  <Sprout className="w-4 h-4 text-amber-700 shrink-0 stroke-[2.2]" />
+                  <span className="truncate font-black">Newbie Tips: Soil & Season Crops ({currentState.name})</span>
+                </div>
+                <span className="text-[10px] text-amber-900 font-black bg-amber-200/90 px-2 py-0.5 rounded">View</span>
               </button>
             </div>
 
