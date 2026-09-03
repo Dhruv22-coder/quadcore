@@ -10,14 +10,14 @@ interface ActiveCropBarProps {
   crop: CropData;
   language: Language;
   onChangeCrop: () => void;
-  isDarkMode: boolean;
+  isDarkMode?: boolean;
 }
 
 export const ActiveCropBar: React.FC<ActiveCropBarProps> = ({
   crop,
   language,
   onChangeCrop,
-  isDarkMode,
+  isDarkMode = false,
 }) => {
   const { isCropWatched, toggleWatchCrop } = useFirebase();
   const watched = isCropWatched(crop.id);

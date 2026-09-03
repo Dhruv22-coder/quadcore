@@ -149,10 +149,10 @@ export const WeatherStorageView: React.FC<WeatherStorageViewProps> = ({
   return (
     <div id="weather-page" className="space-y-5">
       {/* 1. Page Header with Crop HD Photo & Audio Button */}
-      <section className="bg-white rounded-2xl p-4 sm:p-6 border border-slate-200 shadow-2xs">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200">
+      <section className="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-2xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200 dark:border-slate-800">
           <div className="flex items-start gap-3">
-            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden border border-slate-200 shadow-2xs shrink-0 bg-slate-100 mt-0.5">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-2xs shrink-0 bg-slate-100 dark:bg-slate-800 mt-0.5">
               <CropImage
                 id={crop.id}
                 name={crop.name}
@@ -163,17 +163,17 @@ export const WeatherStorageView: React.FC<WeatherStorageViewProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-black uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/80">
+                <span className="text-xs font-black uppercase tracking-wider text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/70 px-2 py-0.5 rounded-md border border-emerald-200/80 dark:border-emerald-800">
                   Page 4 of 5 • Weather
                 </span>
-                <span className="text-xs text-slate-500 font-bold">
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-bold">
                   {currentState?.name} Mandi Zone
                 </span>
               </div>
-              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-1">
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-1">
                 {wt.pageTitle}
               </h1>
-              <p className="text-xs sm:text-sm text-slate-600 font-medium">
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 font-medium">
                 {wt.pageSubtitle} ({crop.name} - {crop.hindiName || ''})
               </p>
             </div>
@@ -206,10 +206,10 @@ export const WeatherStorageView: React.FC<WeatherStorageViewProps> = ({
         {/* 2. Weather Status & Test Scenarios Strip */}
         <div className="mt-4 pt-1">
           <div className="flex flex-wrap items-center justify-between gap-2.5 mb-3">
-            <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
-              <MapPin className="w-4 h-4 text-emerald-700 shrink-0" />
+            <div className="flex items-center gap-2 text-xs font-bold text-slate-800 dark:text-slate-200">
+              <MapPin className="w-4 h-4 text-emerald-700 dark:text-emerald-400 shrink-0" />
               <span>{locName}</span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-semibold border border-slate-200">
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold border border-slate-200 dark:border-slate-700">
                 {weatherData?.source === 'gps'
                   ? wt.gpsLocation
                   : weatherData?.source === 'simulated'
@@ -220,7 +220,7 @@ export const WeatherStorageView: React.FC<WeatherStorageViewProps> = ({
 
             {/* Test buttons for farmers/reviewers */}
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-[10px] font-bold text-slate-500 mr-1">{wt.testForecast}</span>
+              <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mr-1">{wt.testForecast}</span>
               <button
                 type="button"
                 id="weather-view-live"
@@ -230,8 +230,8 @@ export const WeatherStorageView: React.FC<WeatherStorageViewProps> = ({
                 }}
                 className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all border cursor-pointer ${
                   weatherSimulation === 'live'
-                    ? 'bg-slate-900 text-white border-slate-900 shadow-2xs'
-                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+                    ? 'bg-slate-900 dark:bg-emerald-600 text-white border-slate-900 dark:border-emerald-600 shadow-2xs'
+                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-750'
                 }`}
               >
                 {wt.liveForecast}
@@ -246,7 +246,7 @@ export const WeatherStorageView: React.FC<WeatherStorageViewProps> = ({
                 className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all border cursor-pointer ${
                   weatherSimulation === 'rain'
                     ? 'bg-blue-700 text-white border-blue-700 shadow-2xs'
-                    : 'bg-blue-50 text-blue-900 border-blue-200 hover:bg-blue-100'
+                    : 'bg-blue-50 dark:bg-blue-950/60 text-blue-900 dark:text-blue-200 border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/60'
                 }`}
               >
                 {wt.testRain}
@@ -261,7 +261,7 @@ export const WeatherStorageView: React.FC<WeatherStorageViewProps> = ({
                 className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all border cursor-pointer ${
                   weatherSimulation === 'heat'
                     ? 'bg-amber-600 text-white border-amber-600 shadow-2xs'
-                    : 'bg-amber-50 text-amber-950 border-amber-200 hover:bg-amber-100'
+                    : 'bg-amber-50 dark:bg-amber-950/60 text-amber-950 dark:text-amber-200 border-amber-200 dark:border-amber-800 hover:bg-amber-100 dark:hover:bg-amber-900/60'
                 }`}
               >
                 {wt.testHeat}
@@ -271,54 +271,54 @@ export const WeatherStorageView: React.FC<WeatherStorageViewProps> = ({
 
           {/* 4 Weather Metric Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-            <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
-              <div className="flex items-center justify-between text-slate-400 mb-1">
+            <div className="bg-slate-50 dark:bg-slate-800/80 p-3 rounded-xl border border-slate-200 dark:border-slate-700/80">
+              <div className="flex items-center justify-between text-slate-400 dark:text-slate-500 mb-1">
                 <span className="text-[11px] font-bold uppercase">{wt.temperature}</span>
-                <Thermometer className="w-3.5 h-3.5 text-amber-600" />
+                <Thermometer className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
               </div>
-              <div className="text-lg sm:text-xl font-black text-slate-900 tabular-nums">
+              <div className="text-lg sm:text-xl font-black text-slate-900 dark:text-white tabular-nums">
                 {isLoadingWeather ? '...' : `${weatherData?.temperature}°C`}
               </div>
-              <span className="text-[10px] text-slate-500 font-medium block truncate">
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium block truncate">
                 High: {weatherData?.maxTemperature}°C / Low: {weatherData?.minTemperature}°C
               </span>
             </div>
 
-            <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
-              <div className="flex items-center justify-between text-slate-400 mb-1">
+            <div className="bg-slate-50 dark:bg-slate-800/80 p-3 rounded-xl border border-slate-200 dark:border-slate-700/80">
+              <div className="flex items-center justify-between text-slate-400 dark:text-slate-500 mb-1">
                 <span className="text-[11px] font-bold uppercase">{wt.precipitation}</span>
-                <CloudRain className="w-3.5 h-3.5 text-blue-600" />
+                <CloudRain className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
               </div>
-              <div className="text-lg sm:text-xl font-black text-slate-900 tabular-nums">
+              <div className="text-lg sm:text-xl font-black text-slate-900 dark:text-white tabular-nums">
                 {isLoadingWeather ? '...' : `${weatherData?.precipitationSum} mm`}
               </div>
-              <span className="text-[10px] text-slate-500 font-medium block truncate">
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium block truncate">
                 {weatherData?.precipitationProbability}% {wt.rainProbability}
               </span>
             </div>
 
-            <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
-              <div className="flex items-center justify-between text-slate-400 mb-1">
+            <div className="bg-slate-50 dark:bg-slate-800/80 p-3 rounded-xl border border-slate-200 dark:border-slate-700/80">
+              <div className="flex items-center justify-between text-slate-400 dark:text-slate-500 mb-1">
                 <span className="text-[11px] font-bold uppercase">{wt.relativeHumidity}</span>
-                <Droplets className="w-3.5 h-3.5 text-cyan-600" />
+                <Droplets className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
               </div>
-              <div className="text-lg sm:text-xl font-black text-slate-900 tabular-nums">
+              <div className="text-lg sm:text-xl font-black text-slate-900 dark:text-white tabular-nums">
                 {isLoadingWeather ? '...' : `${weatherData?.humidity}%`}
               </div>
-              <span className="text-[10px] text-slate-500 font-medium block truncate">
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium block truncate">
                 {wt.airMoisture}
               </span>
             </div>
 
-            <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
-              <div className="flex items-center justify-between text-slate-400 mb-1">
+            <div className="bg-slate-50 dark:bg-slate-800/80 p-3 rounded-xl border border-slate-200 dark:border-slate-700/80">
+              <div className="flex items-center justify-between text-slate-400 dark:text-slate-500 mb-1">
                 <span className="text-[11px] font-bold uppercase">{wt.windAndSky}</span>
-                <Wind className="w-3.5 h-3.5 text-teal-600" />
+                <Wind className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
               </div>
-              <div className="text-base sm:text-lg font-black text-slate-900 truncate">
+              <div className="text-base sm:text-lg font-black text-slate-900 dark:text-white truncate">
                 {isLoadingWeather ? 'Checking...' : `${weatherData?.windSpeed ?? 14} km/h`}
               </div>
-              <span className="text-[10px] text-slate-600 font-semibold block truncate">
+              <span className="text-[10px] text-slate-600 dark:text-slate-400 font-semibold block truncate">
                 {weatherData?.conditionLabel}
               </span>
             </div>
@@ -382,65 +382,65 @@ export const WeatherStorageView: React.FC<WeatherStorageViewProps> = ({
       {storageSuggestion && (
         <section
           id="scientific-storage-reference"
-          className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden"
+          className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xs overflow-hidden"
         >
           <button
             type="button"
             onClick={() => setIsStorageDetailsOpen(!isStorageDetailsOpen)}
-            className="w-full p-4 sm:p-5 flex items-center justify-between text-left hover:bg-slate-50 transition-colors cursor-pointer"
+            className="w-full p-4 sm:p-5 flex items-center justify-between text-left hover:bg-slate-50 dark:hover:bg-slate-850 transition-colors cursor-pointer"
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center shrink-0">
                 <Warehouse className="w-4 h-4 stroke-[2.2]" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                   <span>{wt.scientificStorageTitle}</span>
-                  <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
+                  <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                     {crop.name}
                   </span>
                 </h3>
-                <p className="text-xs text-slate-500 font-medium mt-0.5">
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
                   {wt.scientificStorageSubtitle}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
+            <div className="flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400">
               <span className="hidden sm:inline">{isStorageDetailsOpen ? wt.hideGuidelines : wt.viewGuidelines}</span>
               {isStorageDetailsOpen ? (
-                <ChevronUp className="w-4 h-4 text-slate-600" />
+                <ChevronUp className="w-4 h-4 text-slate-600 dark:text-slate-400" />
               ) : (
-                <ChevronDown className="w-4 h-4 text-slate-600" />
+                <ChevronDown className="w-4 h-4 text-slate-600 dark:text-slate-400" />
               )}
             </div>
           </button>
 
           {isStorageDetailsOpen && (
-            <div className="p-4 sm:p-5 pt-0 border-t border-slate-100 space-y-4">
+            <div className="p-4 sm:p-5 pt-0 border-t border-slate-100 dark:border-slate-800 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3">
-                <div className="p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-200">
-                  <span className="text-[10px] font-extrabold uppercase tracking-wide text-emerald-900 block">
+                <div className="p-3.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wide text-emerald-900 dark:text-emerald-300 block">
                     {wt.recommendedStructure}
                   </span>
-                  <div className="text-sm font-black text-emerald-950 mt-0.5">
+                  <div className="text-sm font-black text-emerald-950 dark:text-emerald-100 mt-0.5">
                     {storageSuggestion.facilityType}
                   </div>
-                  <div className="text-xs text-emerald-800 font-bold mt-1.5 flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                  <div className="text-xs text-emerald-800 dark:text-emerald-300 font-bold mt-1.5 flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400 shrink-0" />
                     <span>{wt.safeDuration}: {storageSuggestion.safeStorageDuration}</span>
                   </div>
-                  <div className="text-[11px] text-emerald-700 font-medium mt-0.5">
+                  <div className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium mt-0.5">
                     {wt.moistureStandard}: {storageSuggestion.moistureLimit}
                   </div>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-amber-50/80 border border-amber-200">
-                  <span className="text-[10px] font-extrabold uppercase tracking-wide text-amber-900 flex items-center gap-1">
-                    <AlertTriangle className="w-3.5 h-3.5 text-amber-700 shrink-0" />
+                <div className="p-3.5 rounded-xl bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wide text-amber-900 dark:text-amber-300 flex items-center gap-1">
+                    <AlertTriangle className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400 shrink-0" />
                     <span>{wt.mandiDispatchCaution}</span>
                   </span>
-                  <p className="text-xs font-semibold text-amber-950 mt-1 leading-snug">
+                  <p className="text-xs font-semibold text-amber-950 dark:text-amber-200 mt-1 leading-snug">
                     {storageSuggestion.mandiTransitAdvice}
                   </p>
                 </div>
@@ -448,16 +448,16 @@ export const WeatherStorageView: React.FC<WeatherStorageViewProps> = ({
 
               {/* Standard Directives Checklist */}
               <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">
                   {wt.keyDirectivesFor} {crop.name}:
                 </h4>
                 <div className="space-y-1.5">
                   {storageSuggestion.keyDirectives.map((directive, idx) => (
                     <div
                       key={idx}
-                      className="flex items-start gap-2.5 p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-xs font-medium text-slate-800"
+                      className="flex items-start gap-2.5 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-800 dark:text-slate-200"
                     >
-                      <span className="w-4 h-4 rounded-full bg-slate-200 text-slate-800 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">
+                      <span className="w-4 h-4 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">
                         {idx + 1}
                       </span>
                       <span>{directive}</span>
@@ -475,7 +475,7 @@ export const WeatherStorageView: React.FC<WeatherStorageViewProps> = ({
         <button
           type="button"
           onClick={onNavigateToProfit}
-          className="w-full sm:w-auto min-h-[48px] px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-800 font-bold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs"
+          className="w-full sm:w-auto min-h-[48px] px-4 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-750 text-slate-800 dark:text-slate-200 font-bold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>{wt.backToProfit}</span>

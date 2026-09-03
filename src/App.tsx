@@ -36,6 +36,31 @@ function MandiApp() {
   );
   const [language, setLanguage] = useState<Language>('mr');
   const [isSunlightMode, setIsSunlightMode] = useState<boolean>(false);
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('theme');
+      if (saved) {
+        return saved === 'dark';
+      }
+      return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return false;
+  });
+
+  // Apply or remove dark class on document.documentElement whenever isDarkMode changes
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      const root = document.documentElement;
+      if (isDarkMode) {
+        root.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        root.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+      }
+    }
+  }, [isDarkMode]);
+
   const [isAudioPlaying, setIsAudioPlaying] = useState<boolean>(false);
   const [isVoiceSearchOpen, setIsVoiceSearchOpen] = useState<boolean>(false);
   const [isLocationModalOpen, setIsLocationModalOpen] = useState<boolean>(false);
@@ -177,7 +202,9 @@ function MandiApp() {
   return (
     <div
       className={`min-h-screen transition-colors duration-200 ${
-        isSunlightMode
+        isDarkMode
+          ? 'bg-[#0b1120] text-slate-100'
+          : isSunlightMode
           ? 'bg-amber-50/40 text-slate-950 font-semibold'
           : 'bg-[#F8FAFC] text-slate-900'
       }`}
@@ -190,6 +217,8 @@ function MandiApp() {
         onToggleAudio={handleToggleAudio}
         isSunlightMode={isSunlightMode}
         onToggleSunlightMode={() => setIsSunlightMode(!isSunlightMode)}
+        isDarkMode={isDarkMode}
+        onToggleDarkMode={() => setIsDarkMode((prev) => !prev)}
         currentState={currentState}
         onOpenLocationModal={() => setIsLocationModalOpen(true)}
         onOpenAgriTipsModal={() => setIsAgriTipsModalOpen(true)}
@@ -201,14 +230,14 @@ function MandiApp() {
       {/* Location Toast Notification */}
       {locationToast && (
         <div className="max-w-6xl mx-auto px-3 sm:px-6 pt-3">
-          <div className="flex items-center justify-between p-3 bg-emerald-50 border border-emerald-200 rounded-xl shadow-xs text-xs sm:text-sm text-emerald-950 animate-in fade-in slide-in-from-top-2">
+          <div className="flex items-center justify-between p-3 bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200 dark:border-emerald-800 rounded-xl shadow-xs text-xs sm:text-sm text-emerald-950 dark:text-emerald-200 animate-in fade-in slide-in-from-top-2">
             <div className="flex items-center gap-2 font-medium">
-              <CheckCircle className="w-4 h-4 text-emerald-700 shrink-0" />
+              <CheckCircle className="w-4 h-4 text-emerald-700 dark:text-emerald-400 shrink-0" />
               <span>{locationToast}</span>
             </div>
             <button
               onClick={() => setLocationToast(null)}
-              className="p-1 text-emerald-700 hover:text-emerald-900 rounded cursor-pointer"
+              className="p-1 text-emerald-700 dark:text-emerald-400 hover:text-emerald-900 rounded cursor-pointer"
               aria-label="Close notification"
             >
               <X className="w-4 h-4" />
@@ -220,21 +249,21 @@ function MandiApp() {
       {/* Main Content Area */}
       <main className="max-w-6xl mx-auto px-3.5 sm:px-6 py-4 sm:py-6 space-y-5 pb-32 sm:pb-24">
         {/* Quick Live Status Ticker */}
-        <div className="flex flex-wrap items-center justify-between gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-200 shadow-2xs text-xs">
+        <div className="flex flex-wrap items-center justify-between gap-2 px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs text-xs">
           <div className="flex items-center gap-2">
             <span className="flex h-2 w-2 relative">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600" />
             </span>
-            <span className="font-bold text-slate-800 tracking-tight">
+            <span className="font-bold text-slate-800 dark:text-slate-200 tracking-tight">
               Mandi Auctions Live: {currentState.name} ({currentState.keyMandi}) & All-India APMCs
             </span>
           </div>
 
-          <div className="flex items-center gap-3 text-slate-500 font-medium">
+          <div className="flex items-center gap-3 text-slate-500 dark:text-slate-400 font-medium">
             <button
               onClick={() => setIsLocationModalOpen(true)}
-              className="inline-flex items-center gap-1 text-emerald-700 hover:underline font-bold text-[11px] cursor-pointer"
+              className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 hover:underline font-bold text-[11px] cursor-pointer"
             >
               <MapPin className="w-3 h-3" />
               Change State
@@ -243,10 +272,10 @@ function MandiApp() {
             <button
               type="button"
               onClick={() => setIsCloudModalOpen(true)}
-              className="inline-flex items-center gap-1 font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-2 py-0.5 rounded-md border border-emerald-200/80 text-[11px] cursor-pointer transition-colors"
+              className="inline-flex items-center gap-1 font-semibold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 px-2 py-0.5 rounded-md border border-emerald-200/80 dark:border-emerald-800 text-[11px] cursor-pointer transition-colors"
               title="Kisan Cloud Firestore Account"
             >
-              <Radio className="w-3 h-3 text-emerald-600 animate-pulse" />
+              <Radio className="w-3 h-3 text-emerald-600 dark:text-emerald-400 animate-pulse" />
               Agmarknet & Cloud Sync
             </button>
           </div>
@@ -257,6 +286,7 @@ function MandiApp() {
           activePage={activePage}
           onPageChange={setActivePage}
           language={language}
+          isDarkMode={isDarkMode}
           isSunlightMode={isSunlightMode}
         />
 
@@ -266,7 +296,7 @@ function MandiApp() {
             crop={selectedCrop}
             language={language}
             onChangeCrop={() => setActivePage('crops')}
-            isSunlightMode={isSunlightMode}
+            isDarkMode={isDarkMode}
           />
         )}
 
@@ -278,6 +308,7 @@ function MandiApp() {
             onSelectCrop={(id) => handleSelectCrop(id, true)}
             language={language}
             onOpenVoiceSearch={() => setIsVoiceSearchOpen(true)}
+            isDarkMode={isDarkMode}
             isSunlightMode={isSunlightMode}
             onProceedToDecision={() => setActivePage('decision')}
             filterText={cropSearchFilter}
@@ -291,6 +322,7 @@ function MandiApp() {
             language={language}
             onPlayAudio={handleToggleAudio}
             isAudioPlaying={isAudioPlaying}
+            isDarkMode={isDarkMode}
             isSunlightMode={isSunlightMode}
             currentState={currentState}
             harvestQuantity={quantity}
@@ -307,6 +339,7 @@ function MandiApp() {
             crop={selectedCrop}
             language={language}
             currentState={currentState}
+            isDarkMode={isDarkMode}
             isSunlightMode={isSunlightMode}
             quantity={quantity}
             onQuantityChange={handleQuantityChange}
@@ -321,6 +354,7 @@ function MandiApp() {
             crop={selectedCrop}
             language={language}
             currentState={currentState}
+            isDarkMode={isDarkMode}
             isSunlightMode={isSunlightMode}
             onNavigateToProfit={() => setActivePage('profit')}
             onNavigateToHelp={() => setActivePage('help')}
@@ -331,6 +365,8 @@ function MandiApp() {
           <KisanHelpView
             crop={selectedCrop}
             language={language}
+            isDarkMode={isDarkMode}
+            onToggleDarkMode={() => setIsDarkMode((prev) => !prev)}
             isSunlightMode={isSunlightMode}
             onToggleSunlightMode={() => setIsSunlightMode(!isSunlightMode)}
             onNavigateToWeather={() => setActivePage('weather')}
@@ -445,19 +481,19 @@ function MandiApp() {
       />
 
       {/* Modern, Clean Utility Footer */}
-      <footer className="border-t border-slate-200 bg-white py-6 px-4 text-xs text-slate-500 font-medium">
+      <footer className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-6 px-4 text-xs text-slate-500 dark:text-slate-400 font-medium">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <div className="w-5 h-5 rounded-md bg-emerald-700 text-white flex items-center justify-center font-bold text-xs">
               <Sprout className="w-3.5 h-3.5" />
             </div>
-            <span className="font-extrabold text-sm text-slate-900">MandiMitra</span>
-            <span className="text-slate-300">|</span>
+            <span className="font-extrabold text-sm text-slate-900 dark:text-white">MandiMitra</span>
+            <span className="text-slate-300 dark:text-slate-700">|</span>
             <span>Real-time price intelligence & logistical decision-support for Indian farmers</span>
           </div>
 
-          <div className="flex items-center gap-3 text-slate-600 font-medium text-[11px]">
-            <span>Free Kisan Helpline: <strong className="text-slate-900 font-bold">1800-889-2040</strong></span>
+          <div className="flex items-center gap-3 text-slate-600 dark:text-slate-400 font-medium text-[11px]">
+            <span>Free Kisan Helpline: <strong className="text-slate-900 dark:text-slate-200 font-bold">1800-889-2040</strong></span>
             <span>•</span>
             <span>Agmarknet Verified</span>
           </div>

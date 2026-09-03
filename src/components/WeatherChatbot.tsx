@@ -314,24 +314,24 @@ export const WeatherChatbot: React.FC<WeatherChatbotProps> = ({
   return (
     <section
       id="weather-chatbot-widget"
-      className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden flex flex-col"
+      className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xs overflow-hidden flex flex-col"
     >
       {/* Header with Title and Quota Badge */}
-      <div className="p-4 sm:p-5 border-b border-slate-200 bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-850 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shrink-0 shadow-2xs">
+          <div className="w-10 h-10 rounded-xl bg-slate-900 dark:bg-slate-800 text-white flex items-center justify-center shrink-0 shadow-2xs border border-transparent dark:border-slate-700">
             <Bot className="w-5 h-5 text-emerald-400" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-base font-black text-slate-900 tracking-tight">
+              <h3 className="text-base font-black text-slate-900 dark:text-white tracking-tight">
                 {wt.chatbotTitle}
               </h3>
-              <span className="hidden sm:inline-block text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300">
+              <span className="hidden sm:inline-block text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
                 Gemini 2.5 Flash
               </span>
             </div>
-            <p className="text-xs text-slate-500 font-medium">
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
               {wt.chatbotSubtitle}
             </p>
           </div>
@@ -343,10 +343,10 @@ export const WeatherChatbot: React.FC<WeatherChatbotProps> = ({
             id="chatbot-quota-badge"
             className={`px-3 py-1.5 rounded-xl border text-xs font-black flex items-center gap-1.5 shadow-2xs ${
               questionsRemaining > 2
-                ? 'bg-emerald-50 text-emerald-900 border-emerald-300'
+                ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800'
                 : questionsRemaining > 0
-                ? 'bg-amber-50 text-amber-900 border-amber-300'
-                : 'bg-rose-50 text-rose-900 border-rose-300'
+                ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 border-amber-300 dark:border-amber-800'
+                : 'bg-rose-50 dark:bg-rose-950/60 text-rose-900 dark:text-rose-300 border-rose-300 dark:border-rose-800'
             }`}
           >
             <Clock className="w-3.5 h-3.5" />
@@ -356,7 +356,7 @@ export const WeatherChatbot: React.FC<WeatherChatbotProps> = ({
       </div>
 
       {/* Chat Messages Feed */}
-      <div className="p-4 sm:p-5 space-y-3.5 max-h-[420px] overflow-y-auto bg-slate-50/40">
+      <div className="p-4 sm:p-5 space-y-3.5 max-h-[420px] overflow-y-auto bg-slate-50/40 dark:bg-slate-950/40">
         {messages.map((msg) => {
           const isAssistant = msg.sender === 'assistant';
           const isSpeaking = speakingMessageId === msg.id;
@@ -375,7 +375,7 @@ export const WeatherChatbot: React.FC<WeatherChatbotProps> = ({
               <div
                 className={`max-w-[85%] sm:max-w-[75%] rounded-2xl p-3.5 text-xs sm:text-sm shadow-2xs ${
                   isAssistant
-                    ? 'bg-white text-slate-800 border border-slate-200'
+                    ? 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700'
                     : 'bg-emerald-700 text-white font-medium'
                 }`}
               >
@@ -385,7 +385,7 @@ export const WeatherChatbot: React.FC<WeatherChatbotProps> = ({
                 <div
                   className={`mt-2 pt-1.5 border-t flex items-center justify-between gap-2 text-[10px] ${
                     isAssistant
-                      ? 'border-slate-100 text-slate-400'
+                      ? 'border-slate-100 dark:border-slate-700 text-slate-400 dark:text-slate-400'
                       : 'border-emerald-600 text-emerald-100'
                   }`}
                 >
@@ -395,17 +395,17 @@ export const WeatherChatbot: React.FC<WeatherChatbotProps> = ({
                     <button
                       type="button"
                       onClick={() => handleSpeakMessage(msg.id, msg.audioText || msg.text)}
-                      className="flex items-center gap-1 font-bold text-slate-600 hover:text-emerald-700 cursor-pointer transition-colors"
+                      className="flex items-center gap-1 font-bold text-slate-600 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 cursor-pointer transition-colors"
                       title="Listen to this response"
                     >
                       {isSpeaking ? (
                         <>
-                          <VolumeX className="w-3.5 h-3.5 text-amber-600" />
-                          <span className="text-amber-700">{wt.stopAudio}</span>
+                          <VolumeX className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                          <span className="text-amber-700 dark:text-amber-400">{wt.stopAudio}</span>
                         </>
                       ) : (
                         <>
-                          <Volume2 className="w-3.5 h-3.5 text-slate-500" />
+                          <Volume2 className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                           <span>{wt.listenAudio}</span>
                         </>
                       )}
@@ -415,7 +415,7 @@ export const WeatherChatbot: React.FC<WeatherChatbotProps> = ({
               </div>
 
               {!isAssistant && (
-                <div className="w-7 h-7 rounded-lg bg-slate-900 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
+                <div className="w-7 h-7 rounded-lg bg-slate-900 dark:bg-slate-800 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
                   <User className="w-4 h-4 text-emerald-300" />
                 </div>
               )}
@@ -425,7 +425,7 @@ export const WeatherChatbot: React.FC<WeatherChatbotProps> = ({
 
         {/* Typing indicator */}
         {isTyping && (
-          <div className="flex items-center gap-2 text-slate-500 text-xs font-semibold pl-1">
+          <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs font-semibold pl-1">
             <div className="w-6 h-6 rounded-lg bg-emerald-700 text-white flex items-center justify-center">
               <Sparkles className="w-3.5 h-3.5 animate-spin" />
             </div>
@@ -438,10 +438,10 @@ export const WeatherChatbot: React.FC<WeatherChatbotProps> = ({
 
       {/* Suggestion Chips */}
       {!isQuotaExhausted && (
-        <div className="px-4 py-2.5 bg-slate-100/70 border-t border-slate-200">
+        <div className="px-4 py-2.5 bg-slate-100/70 dark:bg-slate-850 border-t border-slate-200 dark:border-slate-800">
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider shrink-0 mr-1 flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-emerald-600" />
+            <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider shrink-0 mr-1 flex items-center gap-1">
+              <Sparkles className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
               {wt.quickSuggestions}
             </span>
             {suggestionChips.map((chip, idx) => (
@@ -450,7 +450,7 @@ export const WeatherChatbot: React.FC<WeatherChatbotProps> = ({
                 type="button"
                 onClick={() => handleChipClick(chip)}
                 disabled={isTyping}
-                className="whitespace-nowrap px-2.5 py-1 rounded-lg text-xs font-semibold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 shadow-2xs hover:border-slate-300 transition-all cursor-pointer shrink-0 disabled:opacity-50"
+                className="whitespace-nowrap px-2.5 py-1 rounded-lg text-xs font-semibold bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 shadow-2xs hover:border-slate-300 dark:hover:border-slate-600 transition-all cursor-pointer shrink-0 disabled:opacity-50"
               >
                 {chip}
               </button>
@@ -460,13 +460,13 @@ export const WeatherChatbot: React.FC<WeatherChatbotProps> = ({
       )}
 
       {/* Input or Exhausted Banner */}
-      <div className="p-3 sm:p-4 bg-white border-t border-slate-200">
+      <div className="p-3 sm:p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
         {isQuotaExhausted ? (
           <div
             id="chatbot-quota-exhausted-notice"
-            className="p-3.5 rounded-xl bg-slate-100 border border-slate-300 text-slate-700 text-xs sm:text-sm font-semibold flex items-center gap-2.5"
+            className="p-3.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs sm:text-sm font-semibold flex items-center gap-2.5"
           >
-            <Info className="w-5 h-5 text-slate-600 shrink-0" />
+            <Info className="w-5 h-5 text-slate-600 dark:text-slate-400 shrink-0" />
             <span>
               {wt.quotaUsed}
             </span>
@@ -487,7 +487,7 @@ export const WeatherChatbot: React.FC<WeatherChatbotProps> = ({
               onChange={(e) => setInputText(e.target.value)}
               disabled={isQuotaExhausted || isTyping}
               placeholder={wt.askPlaceholder}
-              className="flex-1 min-h-[44px] px-3.5 py-2 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-700 text-xs sm:text-sm font-medium bg-slate-50 focus:bg-white transition-all disabled:opacity-50"
+              className="flex-1 min-h-[44px] px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-700 text-xs sm:text-sm font-medium bg-slate-50 dark:bg-slate-800 focus:bg-white dark:focus:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all disabled:opacity-50"
             />
 
             <button

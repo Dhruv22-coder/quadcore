@@ -182,46 +182,46 @@ export const AIWeatherAdvisoryCard: React.FC<AIWeatherAdvisoryCardProps> = ({
     const cat = category.toLowerCase();
     if (cat.includes('travel') || cat.includes('transport') || cat.includes('परिवहन')) {
       return {
-        cardBg: 'bg-blue-50/60 border-blue-200',
-        badgeBg: 'bg-blue-100 text-blue-900 border-blue-300',
-        iconBg: 'bg-blue-100 text-blue-700',
+        cardBg: 'bg-blue-50/60 dark:bg-blue-950/40 border-blue-200 dark:border-blue-900/60',
+        badgeBg: 'bg-blue-100 dark:bg-blue-900/60 text-blue-900 dark:text-blue-200 border-blue-300 dark:border-blue-800',
+        iconBg: 'bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300',
       };
     }
     if (cat.includes('field') || cat.includes('खेत')) {
       return {
-        cardBg: 'bg-emerald-50/60 border-emerald-200',
-        badgeBg: 'bg-emerald-100 text-emerald-900 border-emerald-300',
-        iconBg: 'bg-emerald-100 text-emerald-700',
+        cardBg: 'bg-emerald-50/60 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900/60',
+        badgeBg: 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-900 dark:text-emerald-200 border-emerald-300 dark:border-emerald-800',
+        iconBg: 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300',
       };
     }
     return {
-      cardBg: 'bg-amber-50/60 border-amber-200',
-      badgeBg: 'bg-amber-100 text-amber-950 border-amber-300',
-      iconBg: 'bg-amber-100 text-amber-800',
+      cardBg: 'bg-amber-50/60 dark:bg-amber-950/40 border-amber-200 dark:border-amber-900/60',
+      badgeBg: 'bg-amber-100 dark:bg-amber-900/60 text-amber-950 dark:text-amber-200 border-amber-300 dark:border-amber-800',
+      iconBg: 'bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300',
     };
   };
 
   return (
     <section
       id="ai-kisan-weather-advisory"
-      className="bg-white rounded-2xl p-4 sm:p-6 border border-emerald-200 shadow-xs space-y-4"
+      className="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-6 border border-emerald-200 dark:border-emerald-900/60 shadow-xs space-y-4"
     >
       {/* Header bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-slate-200">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-slate-200 dark:border-slate-800">
         <div className="flex items-start gap-2.5">
           <div className="w-10 h-10 rounded-xl bg-emerald-700 text-white flex items-center justify-center shrink-0 shadow-2xs">
             <Sparkles className="w-5 h-5 text-emerald-100" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+              <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">
                 {wt.aiAdvisoryTitle}
               </h2>
-              <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300">
+              <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
                 Gemini 2.5 Flash
               </span>
             </div>
-            <p className="text-xs text-slate-600 font-medium mt-0.5">
+            <p className="text-xs text-slate-600 dark:text-slate-400 font-medium mt-0.5">
               {wt.aiAdvisorySubtitle} ({crop.name} - {crop.hindiName || ''})
             </p>
           </div>
@@ -234,10 +234,10 @@ export const AIWeatherAdvisoryCard: React.FC<AIWeatherAdvisoryCardProps> = ({
             id="regenerate-weather-advisory-btn"
             onClick={() => fetchAdvisory(true)}
             disabled={isLoading || !weather}
-            className="min-h-[40px] px-3 py-1.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-800 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs disabled:opacity-50"
+            className="min-h-[40px] px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-750 text-slate-800 dark:text-slate-200 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs disabled:opacity-50"
             title="Regenerate Advisory with Gemini"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin text-emerald-700' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin text-emerald-700 dark:text-emerald-400' : ''}`} />
             <span>{isLoading ? wt.generating : wt.regenerate}</span>
           </button>
 
@@ -291,12 +291,12 @@ export const AIWeatherAdvisoryCard: React.FC<AIWeatherAdvisoryCardProps> = ({
       {advisory && (
         <div className="space-y-3.5">
           {/* Summary line */}
-          <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between text-xs font-semibold text-slate-800">
+          <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 flex items-center justify-between text-xs font-semibold text-slate-800 dark:text-slate-200">
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0" />
+              <CheckCircle2 className="w-4 h-4 text-emerald-700 dark:text-emerald-400 shrink-0" />
               <span>{advisory.summary}</span>
             </div>
-            <span className="text-[10px] text-slate-500 font-bold hidden sm:inline-block">
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold hidden sm:inline-block">
               {weather ? `${weather.temperature}°C • ${weather.humidity}% humidity • ${weather.precipitationSum}mm rain` : ''}
             </span>
           </div>
@@ -317,11 +317,11 @@ export const AIWeatherAdvisoryCard: React.FC<AIWeatherAdvisoryCardProps> = ({
                           {getCategoryIcon(measure.category)}
                         </div>
                         <div>
-                          <span className="text-[11px] font-black uppercase tracking-tight text-slate-900 block leading-tight">
+                          <span className="text-[11px] font-black uppercase tracking-tight text-slate-900 dark:text-white block leading-tight">
                             {measure.category}
                           </span>
                           {measure.hindiCategory && (
-                            <span className="text-[10px] text-slate-500 font-medium block leading-tight">
+                            <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium block leading-tight">
                               {measure.hindiCategory}
                             </span>
                           )}
@@ -337,14 +337,14 @@ export const AIWeatherAdvisoryCard: React.FC<AIWeatherAdvisoryCardProps> = ({
                       )}
                     </div>
 
-                    <p className="text-xs sm:text-sm font-medium text-slate-800 leading-relaxed">
+                    <p className="text-xs sm:text-sm font-medium text-slate-800 dark:text-slate-200 leading-relaxed">
                       {measure.advice}
                     </p>
                   </div>
 
-                  <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-[10px] font-bold text-slate-500">
+                  <div className="pt-2 border-t border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between text-[10px] font-bold text-slate-500 dark:text-slate-400">
                     <span>{wt.priorityStep} #{index + 1}</span>
-                    <span className="text-emerald-800">{wt.actionRecommended}</span>
+                    <span className="text-emerald-800 dark:text-emerald-300">{wt.actionRecommended}</span>
                   </div>
                 </div>
               );

@@ -211,8 +211,14 @@ export const Navbar: React.FC<NavbarProps> = ({
   onPageChange,
 }) => {
   const { user, isCloudSyncing } = useFirebase();
-  const isDark = isSunlightMode ?? isDarkMode ?? false;
-  const toggleDark = onToggleSunlightMode || onToggleDarkMode || (() => {});
+  const isDark = isDarkMode !== undefined ? isDarkMode : (isSunlightMode ?? false);
+  const toggleDark = () => {
+    if (onToggleDarkMode) {
+      onToggleDarkMode();
+    } else if (onToggleSunlightMode) {
+      onToggleSunlightMode();
+    }
+  };
   const [langMenuOpen, setLangMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const t = translations[language] || translations.en;
@@ -309,12 +315,12 @@ export const Navbar: React.FC<NavbarProps> = ({
               </span>
             </button>
 
-            {/* Dark Mode / Light Mode Toggle Button (Header / Desktop & Tablet) */}
+            {/* Dark Mode / Light Mode Toggle Button (Header / All screens) */}
             <button
               id="header-theme-toggle-btn"
               type="button"
               onClick={toggleDark}
-              className={`hidden md:flex h-8 sm:h-9 lg:h-10 px-2 sm:px-2.5 rounded-lg border text-xs font-black items-center gap-1 sm:gap-1.5 transition-all shadow-2xs cursor-pointer shrink-0 ${
+              className={`flex h-8 w-8 sm:w-auto sm:h-9 lg:h-10 px-0 sm:px-2.5 rounded-lg border text-xs font-black items-center justify-center gap-1 sm:gap-1.5 transition-all shadow-2xs cursor-pointer shrink-0 ${
                 isDark
                   ? 'bg-slate-800 hover:bg-slate-700 text-amber-300 border-slate-700 ring-1 ring-amber-400/30'
                   : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'

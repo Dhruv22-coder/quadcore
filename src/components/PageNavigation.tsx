@@ -13,7 +13,8 @@ interface PageNavigationProps {
   activePage: ActivePage;
   onPageChange: (page: ActivePage) => void;
   language: Language;
-  isDarkMode: boolean;
+  isDarkMode?: boolean;
+  isSunlightMode?: boolean;
 }
 
 interface NavItem {
@@ -34,7 +35,7 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
   activePage,
   onPageChange,
   language,
-  isDarkMode,
+  isDarkMode = false,
 }) => {
   const navTexts = NAV_TRANSLATIONS[language] || NAV_TRANSLATIONS.en;
   const activeIndex = NAV_ITEMS.findIndex((n) => n.id === activePage);
