@@ -1,6 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { CropIcon } from '../components/CropIcons';
 
+import bajraImg from '../assets/images/bajra_millet_crop_1788449566013.jpg';
+import coconutImg from '../assets/images/coconut_fresh_crop_1788450316117.jpg';
+import cottonImg from '../assets/images/cotton_bolls_crop_1788450254704.jpg';
+import gingerImg from '../assets/images/ginger_adrak_crop_1788450331069.jpg';
+import greenPeasImg from '../assets/images/green_peas_matar_crop_1788450300353.jpg';
+import groundnutImg from '../assets/images/groundnut_peanut_crop_1788450232690.jpg';
+import jowarImg from '../assets/images/jowar_sorghum_crop_1788449601021.jpg';
+import juteImg from '../assets/images/jute_fiber_crop_1788449666924.jpg';
+import moongImg from '../assets/images/moong_dal_crop_1788449647057.jpg';
+import mustardImg from '../assets/images/mustard_sarson_crop_1788450286775.jpg';
+import ragiImg from '../assets/images/ragi_millet_crop_1788449582919.jpg';
+import soybeanImg from '../assets/images/soybean_seeds_crop_1788449617302.jpg';
+import sugarcaneImg from '../assets/images/sugarcane_stalks_crop_1788450269826.jpg';
+import teaImg from '../assets/images/tea_plantation_crop_1788449521532.jpg';
+import turImg from '../assets/images/tur_dal_crop_1788449633240.jpg';
+import uradImg from '../assets/images/urad_dal_crop_1788449547403.jpg';
+
 export interface CropImageInfo {
   url: string;
   alt: string;
@@ -21,15 +38,15 @@ export const CROP_HD_IMAGES: Record<string, CropImageInfo> = {
     alt: 'Ripe golden maize and corn cobs',
   },
   bajra: {
-    url: '/crops/bajra.jpg',
+    url: bajraImg,
     alt: 'Pearl millet (Bajra) stalks with dense seed heads in farm field',
   },
   jowar: {
-    url: '/crops/jowar.jpg',
+    url: jowarImg,
     alt: 'Sorghum (Jowar) crop ear heads with round ripe grains',
   },
   ragi: {
-    url: '/crops/ragi.jpg',
+    url: ragiImg,
     alt: 'Finger millet (Ragi) finger panicles and reddish-brown grains',
   },
   chana: {
@@ -37,39 +54,39 @@ export const CROP_HD_IMAGES: Record<string, CropImageInfo> = {
     alt: 'Chickpeas (Chana / Bengal Gram) whole grains',
   },
   tur: {
-    url: '/crops/tur.jpg',
+    url: turImg,
     alt: 'Pigeon pea (Tur / Arhar dal) golden yellow split pulses',
   },
   moong: {
-    url: '/crops/moong.jpg',
+    url: moongImg,
     alt: 'Green gram (Moong dal) whole organic green beans',
   },
   urad: {
-    url: '/crops/urad.jpg',
+    url: uradImg,
     alt: 'Black gram (Urad dal) whole black pulse beans',
   },
   soybean: {
-    url: '/crops/soybean.jpg',
+    url: soybeanImg,
     alt: 'Golden-yellow Soybeans clean harvested agricultural seeds',
   },
   mustard: {
-    url: '/crops/mustard.jpg',
+    url: mustardImg,
     alt: 'Blooming yellow mustard (Sarson) field and clean mustard seeds',
   },
   groundnut: {
-    url: '/crops/groundnut.jpg',
+    url: groundnutImg,
     alt: 'Freshly harvested raw groundnuts (peanuts / moongphali) with kernels',
   },
   cotton: {
-    url: '/crops/cotton.jpg',
+    url: cottonImg,
     alt: 'Ripe fluffy white cotton bolls ready for harvest on plant',
   },
   sugarcane: {
-    url: '/crops/sugarcane.jpg',
+    url: sugarcaneImg,
     alt: 'Fresh thick juicy purple and green sugarcane stalks',
   },
   jute: {
-    url: '/crops/jute.jpg',
+    url: juteImg,
     alt: 'Golden natural raw jute fibers and bundles drying',
   },
   onion: {
@@ -89,7 +106,7 @@ export const CROP_HD_IMAGES: Record<string, CropImageInfo> = {
     alt: 'Fresh raw turmeric root rhizomes and pure haldi',
   },
   ginger: {
-    url: '/crops/ginger.jpg',
+    url: gingerImg,
     alt: 'Freshly harvested organic raw ginger rhizomes (Adrak)',
   },
   cumin: {
@@ -109,7 +126,7 @@ export const CROP_HD_IMAGES: Record<string, CropImageInfo> = {
     alt: 'Farm fresh clean golden harvest potatoes',
   },
   green_peas: {
-    url: '/crops/green_peas.jpg',
+    url: greenPeasImg,
     alt: 'Fresh plump sweet green peas in open pods (Matar)',
   },
   cauliflower: {
@@ -125,7 +142,7 @@ export const CROP_HD_IMAGES: Record<string, CropImageInfo> = {
     alt: 'Fresh ripe golden yellow banana bunch',
   },
   tea: {
-    url: '/crops/tea.jpg',
+    url: teaImg,
     alt: 'Fresh lush green tea plantation terraces and leaves',
   },
   coffee: {
@@ -133,7 +150,7 @@ export const CROP_HD_IMAGES: Record<string, CropImageInfo> = {
     alt: 'Fresh coffee beans and ripe coffee cherries',
   },
   coconut: {
-    url: '/crops/coconut.jpg',
+    url: coconutImg,
     alt: 'Fresh whole green coconuts and brown coconut with kernel',
   },
 };
