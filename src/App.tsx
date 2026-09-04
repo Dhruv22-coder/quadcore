@@ -178,12 +178,7 @@ function MandiApp() {
   // When the user selects a crop on the '1. Crops' page, immediately save/update 'selectedCrop' in their active farmer document in Firestore.
   const handleSelectCrop = (cropId: string, autoAdvance: boolean = true, cropName?: string) => {
     setSelectedCropId(cropId);
-    if (cropName) {
-      setCropSearchFilter(cropName);
-    } else {
-      const found = crops.find((c) => c.id === cropId);
-      if (found) setCropSearchFilter(found.name);
-    }
+    setCropSearchFilter(''); // Clear the filter so going back shows all crops
     syncActiveCropAndYield(cropId, quantity, 'quintal');
     if (autoAdvance) {
       setActivePage('decision');
@@ -457,7 +452,6 @@ function MandiApp() {
         onClose={() => setIsVoiceSearchOpen(false)}
         crops={crops}
         onSelectCrop={(id, name) => handleSelectCrop(id, true, name)}
-        onUpdateSearchInput={(name) => setCropSearchFilter(name)}
         onFeedbackToast={(msg) => setLocationToast(msg)}
         language={language}
         onNavigatePage={(page) => {
